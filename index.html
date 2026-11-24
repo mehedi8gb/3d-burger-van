@@ -71,7 +71,7 @@ button:focus-visible,#stage:focus-visible{outline:2px solid var(--amber);outline
     <button class="chip" id="vQ">Three-quarter</button>
     <button class="chip" id="vTop">Top view</button>
     <span class="sep" aria-hidden="true"></span>
-    <button class="chip" id="tShutter" aria-pressed="false">Raise awning</button>
+    <button class="chip" id="tShutter" aria-pressed="true">Fold awning</button>
     <button class="chip" id="tPeople" aria-pressed="true">People</button>
     <button class="chip" id="tGlass" aria-pressed="true">Glass</button>
     <button class="chip" id="tAuto" aria-pressed="true">Auto-rotate</button>
@@ -259,15 +259,7 @@ function buildCart(THREE, tex) {
   // LED halo at dome base
   const haloBand = new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.14,64), ledM);
   haloBand.scale.set(7.6,1,4.75); haloBand.position.y=15.0; cart.add(haloBand);
-  // Corner structural posts (connects counter to canopy base)
-  [[-6.8,-3.8],[6.8,-3.8],[-6.8,3.8],[6.8,3.8]].forEach(p =>
-    rod([p[0],9.15,p[1]], [p[0],14.95,p[1]], 0.14, charcoal)
-  );
-  // Header perimeter frame (welded structural top ring supporting canopy base)
-  rod([-6.8,14.95,-3.8], [ 6.8,14.95,-3.8], 0.12, charcoal);
-  rod([-6.8,14.95, 3.8], [ 6.8,14.95, 3.8], 0.12, charcoal);
-  rod([-6.8,14.95,-3.8], [-6.8,14.95, 3.8], 0.12, charcoal);
-  rod([ 6.8,14.95,-3.8], [ 6.8,14.95, 3.8], 0.12, charcoal);
+  // (Structural corner columns and perimeter header frame are defined in the structural frame section)
 
   // ══════════════════════════════════════════════════════════════════════
   //  COOK SIDE INTERIOR  (z = positive, cook stands outside at z≈+8)
@@ -362,70 +354,78 @@ function buildCart(THREE, tex) {
 
 
   // ══════════════════════════════════════════════════════════════════════
-  //  GLASS CONFIGURATION  (blueprint-accurate)
+  //  ARCHITECTURAL STRUCTURE & GLASS (Clean, Optimized, Zero Clutter)
   //
-  //  Rule: 1 unit = 10 cm. Glass panels fit standard 10 mm toughened glass.
-  //  Glass zone height: y 9.15 → 14.95 = 58 cm above counter
-  //
-  //  ┌─────────────────── LEFT END ──────── RIGHT END ─────────────────────┐
-  //  │  x= −7.5                                              x= +7.5       │
-  //  │  GLASS PANEL (80cm×58cm)                 GLASS PANEL (80cm×58cm)   │
-  //  │                                                                     │
-  //  │  CUSTOMER FRONT (z=−3.95)                COOK SIDE (z=+4) OPEN     │
-  //  │  Glass + 60cm pass-through slot           No glass – cook works here│
-  //  │  Stainless sill + ordering ledge          Wing panels at extremes   │
-  //  └─────────────────────────────────────────────────────────────────────┘
+  //  DESIGN PRINCIPLE:
+  //    • 4 Clean Corner Pillars ONLY (no messy cage of pipes)
+  //    • Left & Right End Glass (wind & dust protection)
+  //    • Customer Front Glass (food protection sneeze guard + pass-through window)
+  //    • Service / Cook Area: 100% OPEN AIR (ZERO GLASS in red zone!)
   // ══════════════════════════════════════════════════════════════════════
 
-  // Frame utility: add box to cart AND push to glassObjs
-  const gBox=(w,h,d,x,y,z)=>{const m=box(w,h,d,dispGlass,x,y,z);glassObjs.push(m);return m;};
+  // Utility: add glass panel to cart and to glassObjs list
+  const gBox = (w,h,d,x,y,z) => {
+    const m = box(w,h,d,dispGlass,x,y,z);
+    glassObjs.push(m);
+    return m;
+  };
 
-  // ── LEFT end panel  x = −7.42  (80cm × 58cm, full depth of cart) ────────
-  gBox(0.06, 5.8, 8.0, -7.42, 12.05, 0.0);
-  box(0.14,0.14,8.1, charcoal, -7.42,14.95, 0.0);   // top rail
-  box(0.14,0.14,8.1, charcoal, -7.42, 9.15, 0.0);   // bottom rail
-  box(0.14,5.8,0.14, charcoal, -7.42,12.05,-4.0);   // customer-side post
-  box(0.14,5.8,0.14, charcoal, -7.42,12.05,+4.0);   // cook-side post
+  // ── 1. EXACTLY 4 STRUCTURAL CORNER COLUMNS (50mm square profile) ───────
+  // Smooth, minimal, solid, and optimized — zero pipe clutter!
+  const pillarMat = charcoal;
+  [
+    [-7.40, 12.05, -3.95], // Front-Left
+    [ 7.40, 12.05, -3.95], // Front-Right
+    [-7.40, 12.05,  3.95], // Rear-Left (Service side)
+    [ 7.40, 12.05,  3.95]  // Rear-Right (Service side)
+  ].forEach(([px, py, pz]) => {
+    box(0.12, 5.8, 0.12, pillarMat, px, py, pz);
+  });
 
-  // ── RIGHT end panel  x = +7.42  (80cm × 58cm) ────────────────────────────
-  gBox(0.06, 5.8, 8.0, +7.42, 12.05, 0.0);
-  box(0.14,0.14,8.1, charcoal,  7.42,14.95, 0.0);
-  box(0.14,0.14,8.1, charcoal,  7.42, 9.15, 0.0);
-  box(0.14,5.8,0.14, charcoal,  7.42,12.05,-4.0);
-  box(0.14,5.8,0.14, charcoal,  7.42,12.05,+4.0);
+  // ── 2. TOP PERIMETER HEADER FRAME (supports canopy base) ───────────────
+  box(14.80, 0.12, 0.12, pillarMat,  0.00, 14.95, -3.95); // Front header
+  box(14.80, 0.12, 0.12, pillarMat,  0.00, 14.95,  3.95); // Rear service header
+  box(0.12,  0.12, 7.80, pillarMat, -7.40, 14.95,  0.00); // Left header
+  box(0.12,  0.12, 7.80, pillarMat,  7.40, 14.95,  0.00); // Right header
 
-  // ── CUSTOMER FRONT glass wall  z = −3.95  ────────────────────────────────
-  //
-  //  Total glass width:  150 cm (x −7.42 → +7.42)
-  //  Pass-through slot:  60 cm wide × 45 cm tall, centred at x=0
-  //    Left edge:  x = −3.0  Right edge: x = +3.0
-  //    Bottom:     y =  9.15 (counter level)
-  //    Top:        y = 13.65 (45 cm = comfortable reach height from outside)
-  //  Transom above:  60 cm wide × 13 cm tall (y 13.65 → 14.95)
-  //  Glass LEFT of slot:  45 cm  (x −7.42 → −3.0)
-  //  Glass RIGHT of slot: 45 cm  (x +3.0 → +7.42)
-  //
-  gBox(4.42, 5.8, 0.06, -5.21, 12.05, -3.95);   // glass LEFT  (45cm wide)
-  gBox(4.42, 5.8, 0.06, +5.21, 12.05, -3.95);   // glass RIGHT (45cm wide)
-  gBox(6.0,  1.3, 0.06,  0.0,  14.30, -3.95);   // transom ABOVE pass-through (13cm)
+  // ── 3. COUNTER-LEVEL BASE PERIMETER CHANNELS ───────────────────────────
+  box(14.80, 0.08, 0.08, pillarMat,  0.00,  9.15, -3.95); // Front base channel
+  box(0.08,  0.08, 7.80, pillarMat, -7.40,  9.15,  0.00); // Left base channel
+  box(0.08,  0.08, 7.80, pillarMat,  7.40,  9.15,  0.00); // Right base channel
+  // Note: Service side counter (z = +3.95) has NO channel — it is 100% flush and open!
 
-  // Frame: top + bottom horizontal rails
-  box(14.84,0.14,0.14, charcoal,  0.0, 14.95, -3.95);  // top rail
-  box(14.84,0.14,0.14, charcoal,  0.0,  9.15, -3.95);  // bottom rail (at counter height)
-  // Frame: vertical mullions either side of opening
-  box(0.14,5.8,0.14, charcoal, -3.0, 12.05, -3.95);    // left of opening
-  box(0.14,5.8,0.14, charcoal, +3.0, 12.05, -3.95);    // right of opening
-  // Chrome trim accent on the pass-through opening edges
-  box(6.0,0.08,0.12, chrome,  0.0,13.65,-3.95);         // top edge of opening
-  box(6.0,0.08,0.12, chrome,  0.0, 9.15,-3.95);         // bottom sill front face
+  // ── 4. SIDE GLASS PANELS (Left & Right Ends ONLY) ──────────────────────
+  // Full-depth 80cm × 58cm toughened safety glass protecting from street side wind & dust
+  gBox(0.05, 5.68, 7.78, -7.40, 12.05, 0.0); // Left end glass
+  gBox(0.05, 5.68, 7.78,  7.40, 12.05, 0.0); // Right end glass
+  // Minimal stainless steel glass mounting brackets (clean architectural clamps)
+  [-3.0, 3.0].forEach(cz => {
+    box(0.08, 0.14, 0.08, chrome, -7.40,  9.25, cz);
+    box(0.08, 0.14, 0.08, chrome, -7.40, 14.85, cz);
+    box(0.08, 0.14, 0.08, chrome,  7.40,  9.25, cz);
+    box(0.08, 0.14, 0.08, chrome,  7.40, 14.85, cz);
+  });
 
-  // Stainless steel counter sill  — customer leans / rests here
-  // Extends 25cm outward from glass on the customer side
-  box(6.0, 0.14, 2.5, ssSteel,  0.0, 9.14, -5.2);       // sill plate (25cm deep)
-  box(0.1, 0.14, 2.5, chrome,  -3.1, 9.14, -5.2);       // left sill edge
-  box(0.1, 0.14, 2.5, chrome,  +3.1, 9.14, -5.2);       // right sill edge
-  // Sill front lip (nosing strip)
-  box(6.0, 0.1, 0.1, ssSteel,  0.0, 9.07, -6.4);        // sill nosing
+  // ── 5. CUSTOMER FRONT GLASS WALL (z = -3.95) ───────────────────────────
+  // Left food protection shield (in front of display burgers & menu)
+  gBox(4.30, 5.68, 0.05, -5.20, 12.05, -3.95);
+  // Right food protection shield
+  gBox(4.30, 5.68, 0.05,  5.20, 12.05, -3.95);
+  // Transom glass above the pass-through opening (y=13.65 to 14.95)
+  gBox(6.10, 1.25, 0.05,  0.00, 14.30, -3.95);
+
+  // Pass-through opening frame (two sleek vertical mullions framing opening)
+  box(0.10, 5.68, 0.10, pillarMat, -3.05, 12.05, -3.95);
+  box(0.10, 5.68, 0.10, pillarMat,  3.05, 12.05, -3.95);
+  // Polished stainless trim on opening top lintel
+  box(6.00, 0.06, 0.08, chrome, 0.00, 13.65, -3.95);
+
+  // ── 6. CUSTOMER COUNTER SILL & CANTILEVER SUPPORT ──────────────────────
+  // Stainless steel counter sill extends 25cm outward for customer interaction
+  box(6.0, 0.14, 2.5, ssSteel,  0.0, 9.14, -5.2);
+  box(0.1, 0.14, 2.5, chrome,  -3.05, 9.14, -5.2); // left sill edge
+  box(0.1, 0.14, 2.5, chrome,   3.05, 9.14, -5.2); // right sill edge
+  box(6.0, 0.10, 0.10, ssSteel,  0.0, 9.07, -6.4); // front nosing lip
 
   // Cantilever structural brackets under customer sill (connects shelf to body wall)
   [-2.4, 0.0, 2.4].forEach(bx => {
@@ -434,24 +434,16 @@ function buildCart(THREE, tex) {
   });
 
   // Budget-conscious charming street decoration: Rustic wood planter box under sill
-  // Front slatted planter with fresh green herbs (parsley, rosemary, mint)
   box(5.4, 0.7, 0.7, wood, 0.0, 7.2, -4.38); // planter box
   box(5.2, 0.1, 0.5, dark, 0.0, 7.5, -4.38); // potting soil
   for(let px = -2.0; px <= 2.0; px += 0.8) {
     sph(0.32, M(px % 2 === 0 ? 0x4E8A32 : 0x5C9E38, 0.8), px, 7.75, -4.38, 1, 0.75, 1);
   }
 
-  // ── COOK SIDE WING PANELS  (z≈+3.5, at extreme ends only) ────────────────
-  //  20cm inward from each end panel, on the cook side.
-  //  Acts as wind shield / end screen for the service person.
-  //  Cook works freely in the central 110cm open zone.
-  gBox(0.06, 5.8, 1.5, -6.75, 12.05, 3.5);             // LEFT cook wing
-  box(0.14,5.8,0.14, charcoal, -6.75,12.05, 4.75);      // outer edge post
-  box(0.14,5.8,0.14, charcoal, -6.75,12.05, 2.75);      // inner edge post
-
-  gBox(0.06, 5.8, 1.5, +6.75, 12.05, 3.5);             // RIGHT cook wing
-  box(0.14,5.8,0.14, charcoal, +6.75,12.05, 4.75);
-  box(0.14,5.8,0.14, charcoal, +6.75,12.05, 2.75);
+  // ── 7. SERVICE AREA (COOK SIDE - z = +3.95) ───────────────────────────
+  // 100% OPEN AIR WORKSPACE - ZERO GLASS IN THE ENTIRE SERVICE BAY!
+  // No front glass, no wing glass, no drop-down glass window in front of the cook.
+  // Full 150cm open access to griddle, fryers, prep board, and storage.
 
   // ── Food display shelf (inside glass, customer-visible) ───────────────────
   //  Low shelf at counter+4cm, running full width, back-lit with warm LEDs
@@ -478,45 +470,82 @@ function buildCart(THREE, tex) {
   //    5. Brand badge              — right glass panel
   // ══════════════════════════════════════════════════════════════════════
 
-  // ── 1. MENU BOARD ─────────────────────────────────────────────────────────
-  //  Amber-framed LED lightboard, 55cm × 28cm, inside glass on the LEFT panel
-  //  Customer reads from outside (rotation.y=π faces it outward)
-  box(5.5, 2.8, 0.14, amber, -4.8, 12.5, -4.08);        // amber backboard frame
-  const menuTex = tex(512,256,(g,w,h) => {
-    // Dark chalkboard slate background
-    g.fillStyle='#141210'; g.fillRect(0,0,w,h);
-    // Amber top banner
-    const hdr=g.createLinearGradient(0,0,w,0);
-    hdr.addColorStop(0,'#C98A3E'); hdr.addColorStop(0.5,'#FFC24A'); hdr.addColorStop(1,'#C98A3E');
-    g.fillStyle=hdr; g.fillRect(0,0,w,30);
+  // ── 1. FIXED DARK CHALKBOARD MENU (Non-glitching, solid dark background) ──
+  // Solid dark slate backing box - NO amber background to cause z-fighting!
+  const darkBoardM = M(0x121110, 0.95, 0.1);
+  box(5.3, 2.7, 0.08, darkBoardM, -4.8, 12.5, -4.24); // solid dark backing
+  // Slim gold architectural bezel frame
+  box(5.34, 0.06, 0.10, amber, -4.8, 13.85, -4.21);   // top bezel
+  box(5.34, 0.06, 0.10, amber, -4.8, 11.15, -4.21);   // bottom bezel
+  box(0.06, 2.70, 0.10, amber, -7.47, 12.50, -4.21);   // left bezel
+  box(0.06, 2.70, 0.10, amber, -2.13, 12.50, -4.21);   // right bezel
+
+  const menuTex = tex(512, 256, (g, w, h) => {
+    // 100% Solid Dark Obsidian Slate (stays rock-solid dark from all angles)
+    g.fillStyle = '#121110';
+    g.fillRect(0, 0, w, h);
+    // Amber/gold top banner
+    const hdr = g.createLinearGradient(0, 0, w, 0);
+    hdr.addColorStop(0, '#B87B2E');
+    hdr.addColorStop(0.5, '#F5B842');
+    hdr.addColorStop(1, '#B87B2E');
+    g.fillStyle = hdr;
+    g.fillRect(0, 0, w, 32);
     // Title
-    g.fillStyle='#1A1612'; g.textAlign='center'; g.font='bold 20px sans-serif';
-    g.fillText('★ CRAFT SMASH BURGERS ★', w/2, 22);
+    g.fillStyle = '#18140F';
+    g.textAlign = 'center';
+    g.font = 'bold 20px sans-serif';
+    g.fillText('★ CRAFT SMASH BURGERS ★', w / 2, 23);
     // Divider
-    g.strokeStyle='#FFC24A'; g.lineWidth=1;
-    g.beginPath(); g.moveTo(16,36); g.lineTo(w-16,36); g.stroke();
+    g.strokeStyle = '#F5B842';
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(16, 38);
+    g.lineTo(w - 16, 38);
+    g.stroke();
     // 100% Burger Menu items with realistic pricing
-    const items=[
+    const items = [
       ['Double Smash Burger', '$8.50'],
       ['Smoky Bacon Cheddar', '$9.75'],
       ['Firehouse Jalapeño',  '$9.25'],
       ['Crispy Fried Chicken', '$8.95'],
       ['Truffle Swiss Smash', '$10.50'],
     ];
-    items.forEach(([name,price],i)=>{
-      const yPos = 64 + i*34;
-      g.textAlign='left'; g.fillStyle='#FFF3DC'; g.font='bold 18px sans-serif';
+    items.forEach(([name, price], i) => {
+      const yPos = 68 + i * 34;
+      g.textAlign = 'left';
+      g.fillStyle = '#FFF5E0';
+      g.font = 'bold 18px sans-serif';
       g.fillText(name, 24, yPos);
-      g.textAlign='right'; g.fillStyle='#FFC24A'; g.font='bold 18px sans-serif';
-      g.fillText(price, w-24, yPos);
+      g.textAlign = 'right';
+      g.fillStyle = '#F5B842';
+      g.font = 'bold 18px sans-serif';
+      g.fillText(price, w - 24, yPos);
     });
     // Bottom combo footer
-    g.fillStyle='#2A231C'; g.fillRect(16, h-32, w-32, 24);
-    g.fillStyle='#C98A3E'; g.textAlign='center'; g.font='bold 13px sans-serif';
-    g.fillText('100% FRESH ANGUS BEEF · BRIOCHE BUNS · COMBO +$3.50', w/2, h-16);
+    g.fillStyle = '#221E1A';
+    g.fillRect(16, h - 30, w - 32, 22);
+    g.fillStyle = '#C98A3E';
+    g.textAlign = 'center';
+    g.font = 'bold 12px sans-serif';
+    g.fillText('100% ANGUS BEEF · BRIOCHE BUNS · COMBO FRIES+DRINK +$3.50', w / 2, h - 15);
   });
-  const mp = new THREE.Mesh(new THREE.PlaneGeometry(5.2,2.5), new THREE.MeshBasicMaterial({map:menuTex}));
-  mp.position.set(-4.8, 12.5, -4.15); mp.rotation.y=Math.PI; cart.add(mp);
+
+  // Menu Plane with polygon offset to prevent depth fighting (zero glitch / zero color shift)
+  const mp = new THREE.Mesh(
+    new THREE.PlaneGeometry(5.2, 2.5),
+    new THREE.MeshBasicMaterial({
+      map: menuTex,
+      depthTest: true,
+      depthWrite: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2
+    })
+  );
+  mp.position.set(-4.8, 12.5, -4.18);
+  mp.rotation.y = Math.PI;
+  cart.add(mp);
 
   // ── 2. QR PAYMENT STAND ──────────────────────────────────────────────────
   //  Stainless stand on the right side of the sill, angled toward customer
@@ -588,19 +617,40 @@ function buildCart(THREE, tex) {
 
 
   // ══════════════════════════════════════════════════════════════════════
-  //  AWNING SHUTTER  (cook side, lifts up and over when in service)
-  //  Hinge at y=14.95, z=+3.6. Rotation.x=0 = closed, =−2.5 = open (above)
+  //  WEATHER AWNING (Cook Side Overhead Visor Canopy - ZERO GLASS!)
+  //  Hinged at y=14.95, z=+3.95 (rear header).
+  //  Deployed OVERHEAD above the cook providing weather shelter.
+  //  NEVER hangs down with glass into the service area!
   // ══════════════════════════════════════════════════════════════════════
 
-  const shutter = new THREE.Group(); shutter.position.set(0,14.95,3.6); cart.add(shutter);
-  const sg = new THREE.Mesh(new THREE.BoxGeometry(10.4,5.5,0.05), awningGlass);
-  sg.position.y = -2.75; shutter.add(sg); glassObjs.push(sg);
-  const frm=(w,h,d,x,y,z,mat)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat||charcoal);b.position.set(x,y,z);shutter.add(b);};
-  frm(10.5,0.18,0.12, 0,-0.09,0);             // top rail
-  frm(10.5,0.18,0.12, 0,-5.41,0);             // bottom rail
-  frm(0.14,5.5,0.12, -5.2,-2.75,0);           // left post
-  frm(0.14,5.5,0.12,  5.2,-2.75,0);           // right post
-  frm(2.2,0.1,0.14, 0,-5.2,0.12, amber);      // brand accent at bottom
+  const shutter = new THREE.Group();
+  shutter.position.set(0, 14.95, 3.95);
+  cart.add(shutter);
+
+  // Overhead weather canopy visor (powder-coated aluminum composite panel + amber lip)
+  const visorPanel = new THREE.Mesh(
+    new THREE.BoxGeometry(14.6, 0.05, 3.4),
+    M(0x272523, 0.75, 0.2)
+  );
+  visorPanel.position.set(0, 0.02, 1.7);
+  shutter.add(visorPanel);
+
+  // Amber decorative front fascia edge on awning
+  const visorLip = new THREE.Mesh(
+    new THREE.BoxGeometry(14.62, 0.10, 0.08),
+    amber
+  );
+  visorLip.position.set(0, 0.02, 3.4);
+  shutter.add(visorLip);
+
+  // Slim pneumatic gas struts supporting the visor
+  [-6.2, 6.2].forEach(sx => {
+    rod([sx, 0.0, 0.2], [sx, -0.3, 1.8], 0.03, chrome, shutter);
+  });
+
+  // Default state: deployed overhead at -0.42 rad (tilted back/up above cook's head)
+  // Clean, protective overhead shelter with 100% open workspace below!
+  shutter.rotation.x = -0.42;
 
   // ══════════════════════════════════════════════════════════════════════
   //  SHADOW & RENDERING SETUP
@@ -851,7 +901,7 @@ function init(){
 
   // ── Camera + controls ─────────────────────────────────────────────────────
   const target = new THREE.Vector3(-0.5,9.5,0);
-  let th=0.7, ph=0.28, zoom=1, fitDist=50, auto=!reduce, vt=null, shutTarget=0;
+  let th=0.7, ph=0.28, zoom=1, fitDist=50, auto=!reduce, vt=null, shutTarget = -0.42;
   const pointers=new Map(); let pinch=0;
 
   function fit(){
@@ -920,9 +970,10 @@ function init(){
 
   const tS=document.getElementById('tShutter');
   tS.onclick=()=>{
-    const open=shutTarget===0; shutTarget=open?-2.5:0;
-    tS.setAttribute('aria-pressed',String(open));
-    tS.textContent=open?'Lower awning':'Raise awning';
+    const isDeployed = shutTarget === -0.42;
+    shutTarget = isDeployed ? 0.0 : -0.42;
+    tS.setAttribute('aria-pressed', String(!isDeployed));
+    tS.textContent = isDeployed ? 'Deploy awning' : 'Fold awning';
   };
   document.getElementById('tGlass').onclick=()=>{
     const on=document.getElementById('tGlass').getAttribute('aria-pressed')!=='true';
