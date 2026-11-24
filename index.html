@@ -374,72 +374,97 @@ function person(shirt,apron,cap,reachFwd,facingZ){
   const pm=c=>M(c,0.85);
   const skin=0xC68E67;
 
-  // Legs
-  [-0.32,0.32].forEach(x=>{
-    const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.26,4.2,10),pm(0x2F3A4A));
-    leg.position.set(x,2.1,0);g.add(leg);
-    // Shoes
-    const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.26,1.0),pm(0x1B1A19));
-    shoe.position.set(x,0.09,facingZ?0.2:0);g.add(shoe);
+  // ── LEGS (longer for realism – 50% of body height) ──────────────────────
+  [-0.33,0.33].forEach(x=>{
+    // Upper leg
+    const uleg=new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.28,2.9,10),pm(0x2F3A4A));
+    uleg.position.set(x,1.45,0);g.add(uleg);
+    // Lower leg / shin
+    const lleg=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.6,10),pm(0x2F3A4A));
+    lleg.position.set(x,4.2,0);g.add(lleg);
+    // Shoe
+    const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.58,0.28,1.1),pm(0x1B1A19));
+    shoe.position.set(x,0.14,facingZ?0.22:0);g.add(shoe);
   });
 
-  // Torso
-  const torso=new THREE.Mesh(new THREE.BoxGeometry(1.85,4.2,0.95),pm(shirt));
-  torso.position.y=6.4;g.add(torso);
+  // ── HIPS / BELT ───────────────────────────────────────────────────────────
+  const hips=new THREE.Mesh(new THREE.BoxGeometry(1.70,0.46,0.90),pm(0x2F3A4A));
+  hips.position.y=5.6;g.add(hips);
 
-  // Apron
+  // ── TORSO ─────────────────────────────────────────────────────────────────
+  const torso=new THREE.Mesh(new THREE.BoxGeometry(1.80,3.6,0.92),pm(shirt));
+  torso.position.y=7.4;g.add(torso);
+
+  // Apron (cook only)
   if(apron){
-    const a=new THREE.Mesh(new THREE.BoxGeometry(1.6,3.0,0.09),pm(0xE8D5A0));
-    a.position.set(0,6.0,0.52);g.add(a);
-    // Apron pocket
-    box(0.6,0.5,0.06,pm(0xD4BF8A),0,4.9,0.58);
+    const a=new THREE.Mesh(new THREE.BoxGeometry(1.52,2.9,0.10),pm(0xE8D5A0));
+    a.position.set(0,7.2,0.5);g.add(a);
+    const pocket=new THREE.Mesh(new THREE.BoxGeometry(0.58,0.46,0.08),pm(0xD4BF8A));
+    pocket.position.set(0,5.9,0.52);g.add(pocket);
   }
 
-  // Neck
-  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.24,0.5,8),pm(skin));
-  neck.position.y=8.65;g.add(neck);
+  // ── SHOULDERS (slight width taper) ───────────────────────────────────────
+  const shldBar=new THREE.Mesh(new THREE.BoxGeometry(2.10,0.38,0.80),pm(shirt));
+  shldBar.position.y=9.1;g.add(shldBar);
 
-  // Head
-  const head=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,10),pm(skin));
-  head.position.y=9.35;g.add(head);
+  // ── NECK ─────────────────────────────────────────────────────────────────
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.24,0.56,8),pm(skin));
+  neck.position.y=9.56;g.add(neck);
 
-  // Cap
+  // ── HEAD ─────────────────────────────────────────────────────────────────
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.58,16,10),pm(skin));
+  head.position.y=10.3;g.add(head);
+  // Simple face features
+  const lEye=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6),pm(0x2B2826));
+  lEye.position.set(-0.21,10.38,0.52);g.add(lEye);
+  const rEye=lEye.clone();rEye.position.set(0.21,10.38,0.52);g.add(rEye);
+
+  // ── CAP ──────────────────────────────────────────────────────────────────
   if(cap){
-    const c=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.68,0.44,16),pm(0x2B2826));
-    c.position.y=9.9;g.add(c);
-    const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,0.08,16,1,false,0,Math.PI),pm(0x2B2826));
-    brim.position.set(0,9.68,0.42);brim.rotation.x=0.1;g.add(brim);
+    const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.63,0.66,0.46,16),pm(0x2B2826));
+    crown.position.y=10.95;g.add(crown);
+    const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.84,0.84,0.09,16,1,false,0,Math.PI),pm(0x2B2826));
+    brim.position.set(0,10.72,0.44);brim.rotation.x=0.08;g.add(brim);
   }
 
-  // Arms
-  [-1.1,1.1].forEach((x,i)=>{
-    const shoulder=new THREE.Group();shoulder.position.set(x,8.2,0);
-    const reach= (i===0 ? reachFwd : reachFwd*0.4); // cook leading arm reaches more
+  // ── ARMS ─────────────────────────────────────────────────────────────────
+  [-1.14,1.14].forEach((x,i)=>{
+    const shoulder=new THREE.Group();shoulder.position.set(x,9.0,0);
+    const reach=(i===0?reachFwd:reachFwd*0.5);
     shoulder.rotation.x=-reach;g.add(shoulder);
-    const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.19,3.6,8),pm(shirt));
-    arm.position.y=-1.8;shoulder.add(arm);
+    // Upper arm
+    const uarm=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.1,8),pm(shirt));
+    uarm.position.y=-1.05;shoulder.add(uarm);
+    // Forearm (elbow pivot)
+    const elbow=new THREE.Group();elbow.position.y=-2.1;shoulder.add(elbow);
+    const farm=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.15,2.0,8),pm(skin));
+    farm.position.y=-1.0;elbow.add(farm);
     // Hand
-    const hand=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,6),pm(skin));
-    hand.position.y=-3.7;shoulder.add(hand);
+    const hand=new THREE.Mesh(new THREE.SphereGeometry(0.20,8,6),pm(skin));
+    hand.position.y=-2.1;elbow.add(hand);
   });
 
-  g.scale.setScalar(1.0);  // Realistic scale – not over-tall
+  // Scale set to 1.6 — calibrated so counter at y=9.3 sits at 58% of person height,
+  // matching a real 1.0m counter on a 1.75m adult (57% ratio).
+  g.scale.setScalar(1.6);
   g.traverse(o=>{if(o.isMesh){o.castShadow=true;}});
   return g;
 }
 
 const people=new THREE.Group();
 
-// Cook: stands on the cook side (positive Z), leans toward counter
-const cook=person(0x3B3F46,true,true,0.9,true);
-cook.position.set(-0.4,0,6.2);  // Standing beside van, cook side
-cook.rotation.y=Math.PI;
+// Cook: stands on the open (cook) side, rotation so they face the counter
+// Door face is at z=4.03; cook stands ~1m away (≈8-9 units at this scale)
+const cook=person(0x3B3F46,true,true,0.75,true);
+cook.position.set(-0.5,0,7.0);
+cook.rotation.y=Math.PI;   // facing the van (toward negative Z)
 people.add(cook);
 
-// Customer: stands on the negative-Z (customer side), facing window
-const buyer=person(0x6F8F7A,false,false,0.25,false);
-buyer.position.set(1.8,0,-8.0);  // Standing at the window distance
-buyer.rotation.y=0;              // Facing van
+// Customer: stands on the customer side (negative Z), facing the glass window
+// Glass wall at z=-2.0; customer stands ~0.7m away ≈ 6 units → z=-8.0
+const buyer=person(0x6F8F7A,false,false,0.20,false);
+buyer.position.set(1.8,0,-8.5);
+buyer.rotation.y=0;         // facing the van (toward positive Z)
 people.add(buyer);
 
 return {cart,glassObjs,shutter,people};
