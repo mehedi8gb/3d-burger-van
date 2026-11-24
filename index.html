@@ -259,10 +259,15 @@ function buildCart(THREE, tex) {
   // LED halo at dome base
   const haloBand = new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.14,64), ledM);
   haloBand.scale.set(7.6,1,4.75); haloBand.position.y=15.0; cart.add(haloBand);
-  // Corner structural posts (hold canopy above working zone)
-  [[-5.8,-2],[5.8,-2],[-5.8,3],[5.8,3]].forEach(p =>
-    rod([p[0],9.3,p[1]], [p[0],15.2,p[1]], 0.14, charcoal)
+  // Corner structural posts (connects counter to canopy base)
+  [[-6.8,-3.8],[6.8,-3.8],[-6.8,3.8],[6.8,3.8]].forEach(p =>
+    rod([p[0],9.15,p[1]], [p[0],14.95,p[1]], 0.14, charcoal)
   );
+  // Header perimeter frame (welded structural top ring supporting canopy base)
+  rod([-6.8,14.95,-3.8], [ 6.8,14.95,-3.8], 0.12, charcoal);
+  rod([-6.8,14.95, 3.8], [ 6.8,14.95, 3.8], 0.12, charcoal);
+  rod([-6.8,14.95,-3.8], [-6.8,14.95, 3.8], 0.12, charcoal);
+  rod([ 6.8,14.95,-3.8], [ 6.8,14.95, 3.8], 0.12, charcoal);
 
   // ══════════════════════════════════════════════════════════════════════
   //  COOK SIDE INTERIOR  (z = positive, cook stands outside at z≈+8)
@@ -422,6 +427,20 @@ function buildCart(THREE, tex) {
   // Sill front lip (nosing strip)
   box(6.0, 0.1, 0.1, ssSteel,  0.0, 9.07, -6.4);        // sill nosing
 
+  // Cantilever structural brackets under customer sill (connects shelf to body wall)
+  [-2.4, 0.0, 2.4].forEach(bx => {
+    rod([bx, 6.8, -4.0], [bx, 9.08, -5.8], 0.08, charcoal); // diagonal strut
+    box(0.12, 2.3, 0.12, charcoal, bx, 7.95, -4.05);        // vertical wall bracket
+  });
+
+  // Budget-conscious charming street decoration: Rustic wood planter box under sill
+  // Front slatted planter with fresh green herbs (parsley, rosemary, mint)
+  box(5.4, 0.7, 0.7, wood, 0.0, 7.2, -4.38); // planter box
+  box(5.2, 0.1, 0.5, dark, 0.0, 7.5, -4.38); // potting soil
+  for(let px = -2.0; px <= 2.0; px += 0.8) {
+    sph(0.32, M(px % 2 === 0 ? 0x4E8A32 : 0x5C9E38, 0.8), px, 7.75, -4.38, 1, 0.75, 1);
+  }
+
   // ── COOK SIDE WING PANELS  (z≈+3.5, at extreme ends only) ────────────────
   //  20cm inward from each end panel, on the cook side.
   //  Acts as wind shield / end screen for the service person.
@@ -464,32 +483,37 @@ function buildCart(THREE, tex) {
   //  Customer reads from outside (rotation.y=π faces it outward)
   box(5.5, 2.8, 0.14, amber, -4.8, 12.5, -4.08);        // amber backboard frame
   const menuTex = tex(512,256,(g,w,h) => {
-    // Background
+    // Dark chalkboard slate background
     g.fillStyle='#141210'; g.fillRect(0,0,w,h);
-    // Top glow strip
+    // Amber top banner
     const hdr=g.createLinearGradient(0,0,w,0);
     hdr.addColorStop(0,'#C98A3E'); hdr.addColorStop(0.5,'#FFC24A'); hdr.addColorStop(1,'#C98A3E');
-    g.fillStyle=hdr; g.fillRect(0,0,w,28);
+    g.fillStyle=hdr; g.fillRect(0,0,w,30);
     // Title
-    g.fillStyle='#141210'; g.textAlign='center'; g.font='bold 22px sans-serif';
-    g.fillText('BURGERS', w/2, 20);
+    g.fillStyle='#1A1612'; g.textAlign='center'; g.font='bold 20px sans-serif';
+    g.fillText('★ CRAFT SMASH BURGERS ★', w/2, 22);
     // Divider
-    g.strokeStyle='#4A3A18'; g.lineWidth=1;
+    g.strokeStyle='#FFC24A'; g.lineWidth=1;
     g.beginPath(); g.moveTo(16,36); g.lineTo(w-16,36); g.stroke();
-    // Menu items
+    // 100% Burger Menu items with realistic pricing
     const items=[
-      ['Smash Burger', ''],
-      ['Cheese Burger',''],
-      ['Spicy Burger', ''],
-      ['Double Smash', ''],
+      ['Double Smash Burger', '$8.50'],
+      ['Smoky Bacon Cheddar', '$9.75'],
+      ['Firehouse Jalapeño',  '$9.25'],
+      ['Crispy Fried Chicken', '$8.95'],
+      ['Truffle Swiss Smash', '$10.50'],
     ];
-    g.fillStyle='#FFF3DC'; g.font='24px sans-serif';
-    items.forEach(([name,_],i)=>{
-      g.fillText(name, w/2, 68+i*44);
+    items.forEach(([name,price],i)=>{
+      const yPos = 64 + i*34;
+      g.textAlign='left'; g.fillStyle='#FFF3DC'; g.font='bold 18px sans-serif';
+      g.fillText(name, 24, yPos);
+      g.textAlign='right'; g.fillStyle='#FFC24A'; g.font='bold 18px sans-serif';
+      g.fillText(price, w-24, yPos);
     });
-    // Bottom tag line
-    g.fillStyle='#8B6914'; g.font='italic 18px sans-serif';
-    g.fillText('Made fresh · Every order', w/2, 242);
+    // Bottom combo footer
+    g.fillStyle='#2A231C'; g.fillRect(16, h-32, w-32, 24);
+    g.fillStyle='#C98A3E'; g.textAlign='center'; g.font='bold 13px sans-serif';
+    g.fillText('100% FRESH ANGUS BEEF · BRIOCHE BUNS · COMBO +$3.50', w/2, h-16);
   });
   const mp = new THREE.Mesh(new THREE.PlaneGeometry(5.2,2.5), new THREE.MeshBasicMaterial({map:menuTex}));
   mp.position.set(-4.8, 12.5, -4.15); mp.rotation.y=Math.PI; cart.add(mp);
@@ -594,91 +618,150 @@ function buildCart(THREE, tex) {
     const g = new THREE.Group();
     const pm = c => M(c,0.85);
     const skin = 0xC68E67;
+    const pants = M(0x2F3A4A, 0.8);
 
-    // ── Legs (upper + lower segment, realistic 50% of body height) ──────
-    [-0.33,0.33].forEach(x=>{
-      // Upper leg (thigh)
-      const ul = new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.28,2.9,10), pm(0x2F3A4A));
-      ul.position.set(x,1.45,0); g.add(ul);
-      // Lower leg (shin)
-      const ll = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.6,10), pm(0x2F3A4A));
-      ll.position.set(x,4.20,0); g.add(ll);
-      // Shoe (slightly forward of body centre)
-      const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.26,1.1), pm(0x1B1A19));
-      shoe.position.set(x,0.13,0.18); g.add(shoe);
+    // ── Shoes (ground y=0 to 0.35) ───────────────────────────────────────
+    [-0.34, 0.34].forEach(x => {
+      const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.32, 1.05), pm(0x1B1A19));
+      shoe.position.set(x, 0.16, 0.18); g.add(shoe);
     });
 
-    // ── Hips / belt ──────────────────────────────────────────────────────
-    const hips = new THREE.Mesh(new THREE.BoxGeometry(1.70,0.46,0.90), pm(0x2F3A4A));
-    hips.position.y=5.6; g.add(hips);
+    // ── Lower Leg / Shin (y=0.35 to 3.65) ────────────────────────────────
+    [-0.34, 0.34].forEach(x => {
+      const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.20, 3.3, 10), pants);
+      shin.position.set(x, 2.0, 0.0); g.add(shin);
+    });
 
-    // ── Torso ─────────────────────────────────────────────────────────────
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(1.80,3.6,0.92), pm(shirt));
-    torso.position.y=7.4; g.add(torso);
+    // ── Knee Joint (y=3.65) ──────────────────────────────────────────────
+    [-0.34, 0.34].forEach(x => {
+      const knee = new THREE.Mesh(new THREE.SphereGeometry(0.23, 8, 6), pants);
+      knee.position.set(x, 3.65, 0.0); g.add(knee);
+    });
 
+    // ── Upper Leg / Thigh (y=3.65 to 7.05) ───────────────────────────────
+    [-0.34, 0.34].forEach(x => {
+      const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 3.4, 10), pants);
+      thigh.position.set(x, 5.35, 0.0); g.add(thigh);
+    });
+
+    // ── Hips / Belt Section (y=7.05 to 7.55) ─────────────────────────────
+    const hips = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.55, 0.88), pants);
+    hips.position.y = 7.30; g.add(hips);
+    const belt = new THREE.Mesh(new THREE.BoxGeometry(1.68, 0.14, 0.90), pm(0x1B1A19));
+    belt.position.y = 7.52; g.add(belt);
+
+    // ── Torso (y=7.55 to 10.75, chest at counter height 9.15) ────────────
+    const lowerTorso = new THREE.Mesh(new THREE.BoxGeometry(1.55, 1.6, 0.84), pm(shirt));
+    lowerTorso.position.y = 8.35; g.add(lowerTorso);
+    const upperTorso = new THREE.Mesh(new THREE.BoxGeometry(1.78, 1.6, 0.88), pm(shirt));
+    upperTorso.position.y = 9.95; g.add(upperTorso);
+
+    // Apron (Cook only)
     if (apron) {
-      const a = new THREE.Mesh(new THREE.BoxGeometry(1.52,2.9,0.10), pm(0xE8D5A0));
-      a.position.set(0,7.2,0.5); g.add(a);
-      const pkt = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.46,0.09), pm(0xD4BF8A));
-      pkt.position.set(0,5.9,0.52); g.add(pkt);
+      const apBib = new THREE.Mesh(new THREE.BoxGeometry(1.35, 2.0, 0.08), pm(0xE8D5A0));
+      apBib.position.set(0, 9.4, 0.46); g.add(apBib);
+      const apSkirt = new THREE.Mesh(new THREE.BoxGeometry(1.52, 2.4, 0.08), pm(0xE8D5A0));
+      apSkirt.position.set(0, 7.3, 0.46); g.add(apSkirt);
+      const apPkt = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.08), pm(0xD4BF8A));
+      apPkt.position.set(0, 7.4, 0.51); g.add(apPkt);
+      // Kitchen towel hanging from apron waist
+      const towel = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.4, 0.06), white);
+      towel.position.set(0.55, 6.7, 0.52); g.add(towel);
     }
 
-    // ── Shoulder bar ──────────────────────────────────────────────────────
-    const shld = new THREE.Mesh(new THREE.BoxGeometry(2.10,0.38,0.80), pm(shirt));
-    shld.position.y=9.1; g.add(shld);
+    // ── Shoulder Bar (y=10.75) ───────────────────────────────────────────
+    const shld = new THREE.Mesh(new THREE.BoxGeometry(2.10, 0.35, 0.82), pm(shirt));
+    shld.position.y = 10.75; g.add(shld);
 
-    // ── Neck + head ───────────────────────────────────────────────────────
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.24,0.56,8), pm(skin));
-    neck.position.y=9.56; g.add(neck);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.58,16,10), pm(skin));
-    head.position.y=10.3; g.add(head);
-    // Minimal face
-    [-0.21,0.21].forEach(ex=>{
-      const eye=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6),pm(0x2B2826));
-      eye.position.set(ex,10.38,0.52); g.add(eye);
+    // ── Neck (y=10.75 to 11.35) ──────────────────────────────────────────
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.23, 0.60, 8), pm(skin));
+    neck.position.y = 11.05; g.add(neck);
+
+    // ── Head (center y=11.90, radius 0.52 → top of head at y=12.42) ─────
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.52, 16, 12), pm(skin));
+    head.position.y = 11.90; g.add(head);
+    // Expressive eyes
+    [-0.18, 0.18].forEach(ex => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), pm(0x2B2826));
+      eye.position.set(ex, 12.00, 0.48); g.add(eye);
     });
 
+    // ── Headwear ─────────────────────────────────────────────────────────
     if (cap) {
-      const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.63,0.66,0.46,16), pm(0x2B2826));
-      crown.position.y=10.95; g.add(crown);
-      const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.84,0.84,0.09,16,1,false,0,Math.PI), pm(0x2B2826));
-      brim.position.set(0,10.72,0.44); brim.rotation.x=0.08; g.add(brim);
+      // Cook: Professional chef / baker cap (flat crown, brim)
+      const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.60, 0.45, 16), pm(0x2B2826));
+      crown.position.y = 12.60; g.add(crown);
+      const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.78, 0.78, 0.08, 16, 1, false, 0, Math.PI), pm(0x2B2826));
+      brim.position.set(0, 12.38, 0.40); brim.rotation.x = 0.08; g.add(brim);
+      // Top of cap is at y=12.83 (100% inside green zone < 14.80!)
+    } else {
+      // Customer: Casual modern hair
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.54, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), pm(0x3B2818));
+      hair.position.y = 11.96; g.add(hair);
+      // Top of head is at y=12.50 (100% inside green zone < 14.80!)
     }
 
-    // ── Arms (upper arm + forearm segments) ──────────────────────────────
-    [-1.14,1.14].forEach((x,i)=>{
-      const shGroup=new THREE.Group(); shGroup.position.set(x,9.0,0);
-      shGroup.rotation.x=-(i===0?reachFwd:reachFwd*0.5);
+    // ── Arms & Hands (Elbows at y=9.15 counter height) ───────────────────
+    [-1.12, 1.12].forEach((x, i) => {
+      const shGroup = new THREE.Group();
+      shGroup.position.set(x, 10.60, 0.0);
+      const reach = (i === 0 ? reachFwd : reachFwd * 0.4);
+      shGroup.rotation.x = -reach;
       g.add(shGroup);
-      const ua=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.1,8),pm(shirt));
-      ua.position.y=-1.05; shGroup.add(ua);
-      const elbow=new THREE.Group(); elbow.position.y=-2.1; shGroup.add(elbow);
-      const fa=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.15,2.0,8),pm(skin));
-      fa.position.y=-1.0; elbow.add(fa);
-      const hand=new THREE.Mesh(new THREE.SphereGeometry(0.20,8,6),pm(skin));
-      hand.position.y=-2.1; elbow.add(hand);
+
+      // Upper arm (length 1.6, goes down to y=9.0)
+      const ua = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.17, 1.6, 8), pm(shirt));
+      ua.position.y = -0.80; shGroup.add(ua);
+
+      // Elbow joint
+      const elbow = new THREE.Group();
+      elbow.position.y = -1.60; shGroup.add(elbow);
+
+      // Forearm (length 1.5, reaching forward onto counter)
+      const fa = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 1.5, 8), pm(skin));
+      fa.position.set(0, -0.75, 0.25);
+      fa.rotation.x = 0.35;
+      elbow.add(fa);
+
+      // Hand (at counter working level y ≈ 9.2 - 9.4)
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 6), pm(skin));
+      hand.position.set(0, -1.55, 0.55);
+      elbow.add(hand);
+
+      // Tools / Accessories in hands:
+      if (apron && i === 0) {
+        // Cook right hand holds stainless burger spatula
+        const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 6), wood);
+        handle.rotation.x = Math.PI / 2; handle.position.set(0, -1.55, 0.85); elbow.add(handle);
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.02, 0.6), ssSteel);
+        blade.position.set(0, -1.55, 1.35); elbow.add(blade);
+      } else if (!apron && i === 1) {
+        // Customer right hand holds smartphone / payment card towards QR stand
+        const phone = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.55, 0.04), pm(0x1B1A19));
+        phone.rotation.x = 0.6; phone.position.set(0, -1.55, 0.75); elbow.add(phone);
+        const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.48), new THREE.MeshBasicMaterial({color: 0x4AA3FF}));
+        screen.rotation.x = -Math.PI / 2 + 0.6; screen.position.set(0, -1.53, 0.75); elbow.add(screen);
+      }
     });
 
-    // Scale 1.6 → 174 cm = realistic adult height
-    g.scale.setScalar(1.6);
-    g.traverse(o=>{if(o.isMesh) o.castShadow=true;});
+    // REAL-WORLD SCALE: Top of cook cap is at y=12.83, customer head is at y=12.50
+    // Completely inside green zone (< 14.80) with 20cm clearance below canopy rim!
+    g.traverse(o => { if (o.isMesh) o.castShadow = true; });
     return g;
   }
 
   const people = new THREE.Group();
 
-  // Cook — stands 90cm from van's cook-side face (z=+4+9=+8.0 scaled world units)
-  // Faces the counter (rotation.y = π)
-  const cook = person(0x3B3F46, true, true, 0.75);
-  cook.position.set(-0.5, 0, 8.0);
-  cook.rotation.y = Math.PI;
+  // Cook: stands at cook side counter, leaning naturally toward griddle and prep board
+  const cook = person(0x3B3F46, true, true, 0.70);
+  cook.position.set(-0.6, 0, 5.6);
+  cook.rotation.y = Math.PI; // faces -Z towards counter
   people.add(cook);
 
-  // Customer — stands 60cm from the customer-side glass (z=−4−6=−8.5)
-  // Faces the van (rotation.y = 0)
-  const buyer = person(0x6F8F7A, false, false, 0.20);
-  buyer.position.set(1.0, 0, -8.5);
-  buyer.rotation.y = 0;
+  // Customer: stands at customer window, ordering / scanning QR code at counter
+  const buyer = person(0x557A68, false, false, 0.30);
+  buyer.position.set(1.0, 0, -6.6);
+  buyer.rotation.y = 0; // faces +Z towards customer pass window
   people.add(buyer);
 
   return { cart, glassObjs, shutter, people };
