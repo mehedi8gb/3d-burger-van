@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#dfe4e7" id="themeColor">
 <title>Burger Van – 3D Blueprint</title>
-<meta name="description" content="Interactive 3D blueprint of a street burger van with realistic proportions, food-safe glass showcase, and customer service pass-through window.">
+<meta name="description" content="Blueprint-ready interactive 3D model of a street burger van cart. 1 unit = 10 cm. Real-world proportions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&display=swap" rel="stylesheet">
@@ -28,15 +28,15 @@ body{font-family:var(--font);color:var(--ink);background:radial-gradient(130% 95
 #stage{position:fixed;inset:0;touch-action:none;cursor:grab;outline:none}
 #stage.drag{cursor:grabbing}
 #stage canvas{display:block;width:100%;height:100%}
-.top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(env(safe-area-inset-top) + 14px) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));pointer-events:none}
+.top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(env(safe-area-inset-top)+14px) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));pointer-events:none}
 .top>*{pointer-events:auto}
-.brand h1{font-size:clamp(17px,2.6vw,24px);font-weight:600;letter-spacing:-.01em;line-height:1.1}
-.brand p{font-size:13px;color:var(--ink2);margin-top:4px;max-width:30ch}
+.brand h1{font-size:clamp(16px,2.4vw,22px);font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.brand p{font-size:12px;color:var(--ink2);margin-top:3px;max-width:34ch}
 .seg{display:flex;border:1px solid var(--chipb);border-radius:999px;background:var(--chip);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:3px}
 button{font:inherit;color:inherit}
-.seg button{border:0;background:transparent;color:var(--ink2);font-size:13px;padding:8px 15px;border-radius:999px;cursor:pointer}
+.seg button{border:0;background:transparent;color:var(--ink2);font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg1)}
-.dock{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 max(12px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 12px) max(12px,env(safe-area-inset-left));pointer-events:none}
+.dock{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 max(12px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom)+12px) max(12px,env(safe-area-inset-left));pointer-events:none}
 .chips{pointer-events:auto;display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--chipb);background:var(--chip);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:14px;padding:10px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;min-height:40px}
@@ -46,17 +46,17 @@ button{font:inherit;color:inherit}
 button:focus-visible,#stage:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .msg{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-size:15px;color:var(--ink2);pointer-events:none;transition:opacity .4s}
 .msg.done{opacity:0}
-@media (max-width:760px){.brand p{display:none}.chip{font-size:13px;padding:9px 13px}}
-@media (prefers-reduced-motion:reduce){.msg{transition:none}}
+@media(max-width:760px){.brand p{display:none}.chip{font-size:13px;padding:9px 13px}}
+@media(prefers-reduced-motion:reduce){.msg{transition:none}}
 </style>
 </head>
 <body>
-<div id="stage" tabindex="0" aria-label="Interactive 3D blueprint of the burger van. Drag or use arrow keys to rotate, scroll or pinch to zoom."></div>
+<div id="stage" tabindex="0" aria-label="Burger van 3D blueprint. Drag to rotate, scroll to zoom."></div>
 
 <header class="top">
   <div class="brand">
     <h1>Burger Van – Blueprint</h1>
-    <p>Street burger van · blueprint-ready design</p>
+    <p>1 unit = 10 cm · real-world proportions · blueprint-ready</p>
   </div>
   <div class="seg" role="group" aria-label="Lighting">
     <button id="mDay" aria-pressed="true">Day</button>
@@ -81,541 +81,806 @@ button:focus-visible,#stage:focus-visible{outline:2px solid var(--amber);outline
   </div>
 </div>
 
-<div class="msg" id="msg">Loading 3D model…</div>
-<noscript><div class="msg" style="opacity:1">This page needs JavaScript to show the 3D model.</div></noscript>
+<div class="msg" id="msg">Loading 3D blueprint…</div>
+<noscript><div class="msg" style="opacity:1">JavaScript is required for the 3D view.</div></noscript>
 
 <script>
-//#SCENE-START
-function buildCart(THREE,tex){
-const cart=new THREE.Group();
+// ═══════════════════════════════════════════════════════════════════════════
+//  BURGER VAN – BLUEPRINT MODEL
+//  Scale: 1 THREE.js unit = 10 cm real world
+//
+//  COORDINATE SYSTEM:
+//    X axis → length of cart (left = −7.5, right = +7.5) = 150 cm
+//    Y axis → height (0 = ground level)
+//    Z axis → depth (service/cook side = +4.0, customer/front side = −4.0)
+//
+//  KEY Y HEIGHTS (from ground):
+//    0.00  → ground
+//    ~2.80 → rear wheel centre (27 cm radius)
+//    ~1.10 → front castor centre
+//    4.85  → chassis underframe plate
+//    5.00  → body panels start
+//    9.00  → body panels top
+//    9.15  → counter / work surface (91.5 cm = realistic counter height)
+//    9.15–14.95 → glass zone (58 cm above counter)
+//    14.95 → structural top rail / awning hinge
+//    16.10 → sesame-bun canopy centre
+//
+//  GLASS LAYOUT:
+//    LEFT  end panel: x = −7.42, z = −4.0 … +4.0 (full depth) = 80 cm × 58 cm
+//    RIGHT end panel: x = +7.42, same as left
+//    CUSTOMER front:  z = −3.95, with 60 cm × 45 cm pass-through centred
+//    COOK side:       FULLY OPEN – no glass wall
+//    Cook end wings:  short 20 cm glass at extreme cook-side ends (wind shield)
+// ═══════════════════════════════════════════════════════════════════════════
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-const M=(c,r,m)=>new THREE.MeshStandardMaterial({color:c,roughness:r===undefined?0.6:r,metalness:m||0});
-const box=(w,h,d,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);cart.add(m);return m;};
-const cyl=(rt,rb,h,mat,x,y,z,seg)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||16),mat);m.position.set(x,y,z);cart.add(m);return m;};
-const sph=(r,mat,x,y,z,sx,sy,sz)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,10),mat);m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);cart.add(m);return m;};
-const between=(a,b,r,mat,parent)=>{const A=new THREE.Vector3(a[0],a[1],a[2]),B=new THREE.Vector3(b[0],b[1],b[2]);const d=B.clone().sub(A);const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),8),mat);m.position.copy(A.clone().add(B).multiplyScalar(0.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());(parent||cart).add(m);return m;};
+function buildCart(THREE, tex) {
+  const cart = new THREE.Group();
 
-// ─── MATERIALS ───────────────────────────────────────────────────────────────
-const charcoal=M(0x2B2826,0.7),dark=M(0x1B1A19,0.8),steel=M(0xD9D6CF,0.3,0.6),
-      amber=M(0xC98A3E,0.45),wood=M(0xB98A55,0.8),cream=M(0xFFF1D0,0.5),
-      chrome=M(0xB8B2A6,0.3,0.7),kraft=M(0xC9A06B,0.85),white=M(0xF5F2EA,0.6),
-      pot=M(0xC8CBCD,0.25,0.8),rust=M(0x8B4513,0.9),
-      ssSteel=M(0xC0C0C0,0.2,0.8);
+  // ── Primitive helpers ───────────────────────────────────────────────────
+  const M  = (c,r,m) => new THREE.MeshStandardMaterial({color:c,roughness:r===undefined?0.6:r,metalness:m||0});
+  const box = (w,h,d,mat,x,y,z) => { const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); cart.add(m); return m; };
+  const cyl = (rt,rb,h,mat,x,y,z,seg) => { const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||16),mat); m.position.set(x,y,z); cart.add(m); return m; };
+  const sph = (r,mat,x,y,z,sx,sy,sz) => { const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,10),mat); m.position.set(x,y,z); m.scale.set(sx||1,sy||1,sz||1); cart.add(m); return m; };
+  const rod = (a,b,r,mat,parent) => {
+    const A=new THREE.Vector3(...a), B=new THREE.Vector3(...b), d=B.clone().sub(A);
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),8),mat);
+    m.position.copy(A.clone().add(B).multiplyScalar(0.5));
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());
+    (parent||cart).add(m); return m;
+  };
 
-// Glass materials
-const glassObjs=[];
-// Protective display glass – slightly blue-tinted, more reflective
-const dispGlass=new THREE.MeshPhongMaterial({color:0xa8d8ea,transparent:true,opacity:0.22,shininess:200,specular:0xffffff,side:THREE.DoubleSide,depthWrite:false});
-// Frame glass (awning)
-const awningGlass=new THREE.MeshPhongMaterial({color:0xbfe3ea,transparent:true,opacity:0.18,shininess:140,specular:0xffffff,side:THREE.DoubleSide,depthWrite:false});
-const ledM=new THREE.MeshBasicMaterial({color:0xFFC24A});
+  // ── Materials ───────────────────────────────────────────────────────────
+  const charcoal = M(0x2B2826,0.7);
+  const dark     = M(0x1B1A19,0.8);
+  const steel    = M(0xD9D6CF,0.3,0.6);
+  const amber    = M(0xC98A3E,0.45);
+  const wood     = M(0xB98A55,0.8);
+  const cream    = M(0xFFF1D0,0.5);
+  const chrome   = M(0xB8B2A6,0.3,0.7);
+  const kraft    = M(0xC9A06B,0.85);
+  const white    = M(0xF5F2EA,0.6);
+  const pot      = M(0xC8CBCD,0.25,0.8);
+  const ssSteel  = M(0xC8C8C8,0.18,0.85);
+  const ledM     = new THREE.MeshBasicMaterial({color:0xFFC24A});
+  const ledWarm  = new THREE.MeshBasicMaterial({color:0xFFD68A});
+  const glassObjs = [];
 
-// ─── VAN CHASSIS ─────────────────────────────────────────────────────────────
-// Underframe / chassis plate
-box(14.4,0.3,7.4,dark,0,4.85,0);
-// Main body walls
-box(15,4,8,charcoal,0,7,0);
-// Accent stripe – amber LED strip around top of body
-box(15.05,0.2,8.05,M(0xFFC24A,0.4),0,8.9,0);
-// Roof frame
-box(15.4,0.3,8.4,steel,0,9.15,0);
+  // Food-safe glass: subtle blue tint, high reflectance, food-counter aesthetic
+  const dispGlass = new THREE.MeshPhongMaterial({
+    color:0xadd8e8, transparent:true, opacity:0.18,
+    shininess:220, specular:0xffffff, side:THREE.DoubleSide, depthWrite:false
+  });
+  // Awning glass: same but slightly warmer
+  const awningGlass = new THREE.MeshPhongMaterial({
+    color:0xbfe3ea, transparent:true, opacity:0.16,
+    shininess:140, specular:0xffffff, side:THREE.DoubleSide, depthWrite:false
+  });
 
-// ─── WHEELS ──────────────────────────────────────────────────────────────────
-function wheel(x,y,z,R1,tube){
-  const g=new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.TorusGeometry(R1,tube,14,52),dark));
-  g.add(new THREE.Mesh(new THREE.TorusGeometry(R1-0.18,0.05,8,52),chrome));
-  // 5-spoke alloy wheel
-  if(R1>2){
-    for(let i=0;i<5;i++){
-      const s=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,(R1-0.22)*2,6),chrome);
-      s.rotation.z=i*Math.PI*2/5;g.add(s);
+  // ══════════════════════════════════════════════════════════════════════
+  //  VAN CHASSIS & BODY
+  //  Body: 150cm long × 40cm tall × 80cm wide (storage compartments)
+  //  Chassis plate at y=4.85 (ground clearance from large wheels)
+  // ══════════════════════════════════════════════════════════════════════
+
+  // Chassis underframe
+  box(14.4, 0.3, 7.4, dark, 0, 4.85, 0);
+  // Body side panels (charcoal powder-coat)
+  box(15, 4, 8, charcoal, 0, 7, 0);
+  // Amber LED accent stripe around top of body (brand colour)
+  box(15.05, 0.2, 8.05, M(0xFFC24A,0.4), 0, 8.9, 0);
+  // Top structural rail (stainless)
+  box(15.4, 0.3, 8.4, steel, 0, 9.15, 0);
+
+  // ── Wheels ──────────────────────────────────────────────────────────────
+  // Rear wheels: radius 27cm, pneumatic food-cart style
+  function wheel(x, y, z, R1, tube) {
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(R1, tube, 14, 52), dark));
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(R1-0.18, 0.045, 8, 52), chrome));
+    // 5-spoke alloy
+    for (let i=0; i<5; i++) {
+      const s = new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,(R1-0.22)*2,6), chrome);
+      s.rotation.z = i * Math.PI*2/5; g.add(s);
     }
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.22,12,8), chrome)); // hub cap
+    g.position.set(x,y,z); cart.add(g);
   }
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(0.22,12,8),chrome));
-  g.position.set(x,y,z);cart.add(g);
-}
-wheel(2.5,2.8,4.35,2.7,0.17);wheel(2.5,2.8,-4.35,2.7,0.17);
-// Rear axle
-between([2.5,2.8,-4.35],[2.5,2.8,4.35],0.1,dark);
-between([2.5,2.8,3.4],[2.5,4.85,3.4],0.12,dark);
-between([2.5,2.8,-3.4],[2.5,4.85,-3.4],0.12,dark);
-// Front castor wheel
-wheel(-5.5,1.1,0,1.0,0.15);
-between([-5.5,1.1,0.45],[-5.5,4.85,0.45],0.08,dark);
-between([-5.5,1.1,-0.45],[-5.5,4.85,-0.45],0.08,dark);
-// Tow handle
-between([-7.2,5.5,3.2],[-10.8,7.2,3.2],0.12,dark);
-between([-7.2,5.5,-3.2],[-10.8,7.2,-3.2],0.12,dark);
-between([-10.8,7.2,-3.2],[-10.8,7.2,3.2],0.15,amber);
+  wheel( 2.5, 2.8,  4.35, 2.7, 0.17);  // rear right
+  wheel( 2.5, 2.8, -4.35, 2.7, 0.17);  // rear left
+  rod([2.5,2.8,-4.35],[2.5,2.8,4.35], 0.1, dark);           // rear axle
+  rod([2.5,2.8, 3.4], [2.5,4.85, 3.4], 0.12, dark);         // chassis brace right
+  rod([2.5,2.8,-3.4], [2.5,4.85,-3.4], 0.12, dark);         // chassis brace left
+  wheel(-5.5, 1.1, 0, 1.0, 0.15);                           // front castor
+  rod([-5.5,1.1, 0.4],[-5.5,4.85, 0.4], 0.08, dark);
+  rod([-5.5,1.1,-0.4],[-5.5,4.85,-0.4], 0.08, dark);
+  // Push handle (operator tows from the left end)
+  rod([-7.2,5.5, 3.2],[-11.0,7.2, 3.2], 0.12, dark);
+  rod([-7.2,5.5,-3.2],[-11.0,7.2,-3.2], 0.12, dark);
+  rod([-11.0,7.2,-3.2],[-11.0,7.2,3.2], 0.15, amber);       // cross-bar handle
 
-// ─── BODY STORAGE BAYS (cook side – rear) ────────────────────────────────────
-// Three arched doors: cooler | bread/packaging | gas bay
-function door(x,col,edge){
-  const s=new THREE.Shape();
-  s.moveTo(-1.4,0);s.lineTo(-1.4,1.4);s.absarc(0,1.4,1.4,Math.PI,0,true);s.lineTo(1.4,0);s.lineTo(-1.4,0);
-  const e=new THREE.Mesh(new THREE.ShapeGeometry(s,24),M(edge,0.7));e.scale.set(1.08,1.04,1);e.position.set(x,5.72,4.015);cart.add(e);
-  const d=new THREE.Mesh(new THREE.ShapeGeometry(s,24),M(col,0.55));d.position.set(x,5.8,4.03);cart.add(d);
-  // Door handle
-  const h=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.6,8),chrome);h.rotation.z=Math.PI/2;h.position.set(x+0.9,6.3,4.08);cart.add(h);
-}
-door(-4.6,0x1F8A7A,0x0F4F46); // Teal – cooler
-door( 0,  0xC9402B,0x7A2315); // Red  – bread + packing
-door( 4.6,0xE0A526,0x7A5A10); // Mustard – gas ventilation
+  // ── Storage bays (cook side, z=+4 face) ─────────────────────────────────
+  // Three arched doors: cooler | bread/packaging | LPG gas bay
+  function door(x, col, edge) {
+    const s = new THREE.Shape();
+    s.moveTo(-1.4,0); s.lineTo(-1.4,1.4);
+    s.absarc(0,1.4,1.4,Math.PI,0,true);
+    s.lineTo(1.4,0); s.lineTo(-1.4,0);
+    const e = new THREE.Mesh(new THREE.ShapeGeometry(s,24), M(edge,0.7));
+    e.scale.set(1.08,1.04,1); e.position.set(x,5.72,4.015); cart.add(e);
+    const d = new THREE.Mesh(new THREE.ShapeGeometry(s,24), M(col,0.55));
+    d.position.set(x,5.80,4.03); cart.add(d);
+    // Door handle bar
+    const h = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.6,8), chrome);
+    h.rotation.z = Math.PI/2; h.position.set(x+0.85,6.3,4.08); cart.add(h);
+  }
+  door(-4.6, 0x1F8A7A, 0x0F4F46);  // Teal  = cooler (keeps patties & veg cold)
+  door( 0.0, 0xC9402B, 0x7A2315);  // Red   = buns + packaging
+  door( 4.6, 0xE0A526, 0x7A5A10);  // Amber = LPG gas bay (ventilated)
+  // Porthole vent / peep-hole on teal + red doors
+  [-4.6, 0.0].forEach(x => {
+    const f = new THREE.Mesh(new THREE.CircleGeometry(0.22,16), cream);
+    f.position.set(x,8.0,4.055); cart.add(f);
+  });
+  // Ventilation louvers on gas door
+  for (let i=0; i<3; i++) {
+    box(2.0,0.07,0.05, M(0x5A4210,0.8), 4.6, 6.4+i*0.42, 4.07);
+  }
 
-// Door porthole vents (teal + red doors)
-[-4.6,0].forEach(x=>{
-  const f=new THREE.Mesh(new THREE.CircleGeometry(0.22,16),cream);f.position.set(x,8.0,4.055);cart.add(f);
-  sph(0.11,cream,x+0.9,6.6,4.1);
-});
+  // ══════════════════════════════════════════════════════════════════════
+  //  DECORATIVE SESAME-BUN CANOPY (signature roof)
+  //  Centre y=16.1, scaled to 160cm×92cm footprint — large decorative sign
+  // ══════════════════════════════════════════════════════════════════════
 
-// ─── ROOF BRIM – SESAME BUN CANOPY ───────────────────────────────────────────
-// Canopy dome – golden bun sesame shape
-const dome=new THREE.Mesh(
-  new THREE.SphereGeometry(1,64,32,0,Math.PI*2,0,Math.PI/2),
-  new THREE.MeshStandardMaterial({color:0xC98A3E,roughness:0.42,side:THREE.DoubleSide})
-);
-dome.scale.set(8,4.6,5);dome.position.y=16.1;cart.add(dome);
-// Sesame seeds
-let sd=7;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
-const up=new THREE.Vector3(0,1,0);
-for(let i=0;i<52;i++){
-  const th=rnd()*Math.PI*2,ph=0.1+rnd()*1.1;
-  const x=8*Math.sin(ph)*Math.cos(th),y=4.6*Math.cos(ph),z=5*Math.sin(ph)*Math.sin(th);
-  const n=new THREE.Vector3(x/64,y/21.16,z/25).normalize();
-  const s=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),cream);
-  s.scale.set(0.32,0.12,0.19);s.position.set(x+n.x*0.05,16.1+y+n.y*0.05,z+n.z*0.05);
-  s.quaternion.setFromUnitVectors(up,n);s.rotateY(rnd()*Math.PI);cart.add(s);
-}
-// Patty / lettuce band
-for(let i=0;i<40;i++){
-  const t=i/40*Math.PI*2;
-  sph(0.6,M(i%2?0x7DB544:0x6FA23A,0.7),7.9*Math.cos(t),15.9,4.9*Math.sin(t),1,0.68,1);
-}
-const patty=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.4,64),M(0x4A2A18,0.8));
-patty.scale.set(7.9,1,4.9);patty.position.y=15.3;cart.add(patty);
-const ledBand=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.14,64),ledM);
-ledBand.scale.set(7.6,1,4.75);ledBand.position.y=15.0;cart.add(ledBand);
+  const dome = new THREE.Mesh(
+    new THREE.SphereGeometry(1,64,32,0,Math.PI*2,0,Math.PI/2),
+    new THREE.MeshStandardMaterial({color:0xC98A3E,roughness:0.42,side:THREE.DoubleSide})
+  );
+  dome.scale.set(8,4.6,5); dome.position.y = 16.1; cart.add(dome);
+  // Sesame seeds (seeded random, deterministic)
+  let sd=7; const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
+  const UP = new THREE.Vector3(0,1,0);
+  for (let i=0; i<52; i++) {
+    const th=rnd()*Math.PI*2, ph=0.1+rnd()*1.1;
+    const x=8*Math.sin(ph)*Math.cos(th), y=4.6*Math.cos(ph), z=5*Math.sin(ph)*Math.sin(th);
+    const n=new THREE.Vector3(x/64,y/21.16,z/25).normalize();
+    const s=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),cream);
+    s.scale.set(0.32,0.12,0.19);
+    s.position.set(x+n.x*0.05, 16.1+y+n.y*0.05, z+n.z*0.05);
+    s.quaternion.setFromUnitVectors(UP,n); s.rotateY(rnd()*Math.PI); cart.add(s);
+  }
+  // Lettuce frill + patty band at dome base
+  for (let i=0; i<40; i++) {
+    const t=i/40*Math.PI*2;
+    sph(0.6, M(i%2?0x7DB544:0x6FA23A,0.7), 7.9*Math.cos(t),15.9,4.9*Math.sin(t),1,0.68,1);
+  }
+  const pattyBand = new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.4,64), M(0x4A2A18,0.8));
+  pattyBand.scale.set(7.9,1,4.9); pattyBand.position.y=15.3; cart.add(pattyBand);
+  // LED halo at dome base
+  const haloBand = new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.14,64), ledM);
+  haloBand.scale.set(7.6,1,4.75); haloBand.position.y=15.0; cart.add(haloBand);
+  // Corner structural posts (hold canopy above working zone)
+  [[-5.8,-2],[5.8,-2],[-5.8,3],[5.8,3]].forEach(p =>
+    rod([p[0],9.3,p[1]], [p[0],15.2,p[1]], 0.14, charcoal)
+  );
 
-// Corner structural posts (hold canopy)
-[[-5.8,-2],[5.8,-2],[-5.8,3],[5.8,3]].forEach(p=>between([p[0],9.3,p[1]],[p[0],15.2,p[1]],0.14,charcoal));
+  // ══════════════════════════════════════════════════════════════════════
+  //  COOK SIDE INTERIOR  (z = positive, cook stands outside at z≈+8)
+  //  All equipment sits on the counter surface (y≈9.3–9.5)
+  //  Overhead tool rail at y=14.1
+  // ══════════════════════════════════════════════════════════════════════
 
-// ─── COOK SIDE INTERIOR ──────────────────────────────────────────────────────
-// Overhead tool rail
-between([-5.8,14.1,3],[-0.0,14.1,3],0.07,chrome);
-// Utensil hooks + spatulas/ladles
-[[-5.0,0x9A958B,0.2],[-4.1,0x7A7873,0.2],[-3.2,0x9A958B,0.2],[-2.3,0xC9402B,0.6],[-1.4,0x7A7873,0.2]].forEach(u=>{
-  between([u[0],14.1,3],[u[0],13.4,3],0.04,chrome);
-  box(u[2],1.2,0.07,M(u[1],0.5,0.4),u[0],12.8,3);
-});
-
-// ── Griddle / flat-top ────────────────────────────────────────────────────────
-box(3.6,0.4,3.4,M(0x3A3836,0.5,0.4),-1.6,9.5,2.0);   // griddle body
-// Heating coil glow bars
-[-2.5,-0.9].forEach(x=>cyl(0.6,0.6,0.2,M(0x6B3A1E,0.8),x,9.8,2.0,20));
-// Griddle splatter guard (back)
-box(3.6,1.4,0.1,ssSteel,-1.6,10.5,3.4);
-
-// ── Chicken/Patty pan & heater ────────────────────────────────────────────────
-box(2.2,0.5,2.2,dark,-4.6,9.55,2.4);                   // burner base
-// Stainless cooking pan
-cyl(0.9,0.9,1.0,pot,-4.6,10.3,2.4,28);
-cyl(0.8,0.8,0.05,M(0x9C3F1E,0.7),-4.6,10.84,2.4,24);
-// Meatballs / patties in pan
-for(let i=0;i<6;i++){const a=i/6*Math.PI*2;sph(0.19,M(0xB4561F,0.7),-4.6+0.42*Math.cos(a),10.9,2.4+0.42*Math.sin(a),1,0.68,1);}
-// Pan handle
-between([-4.0,10.95,2.0],[-3.1,11.4,1.6],0.04,chrome);sph(0.19,chrome,-4.04,10.9,2.04,1,0.58,1);
-
-// ── Assembly board ────────────────────────────────────────────────────────────
-box(3.4,0.2,2.2,wood,2.7,9.4,2.6);
-// Burger bun bottom (assembled)
-cyl(0.68,0.68,0.18,M(0xD79A4A,0.6),2.2,9.6,2.6,20);
-cyl(0.68,0.68,0.14,M(0x6B3A1E,0.8),2.2,9.76,2.6,20);  // patty
-cyl(0.72,0.72,0.06,M(0x6FA23A,0.7),2.2,9.87,2.6,20);   // lettuce
-const bunTop=new THREE.Mesh(new THREE.SphereGeometry(0.68,16,8,0,Math.PI*2,0,Math.PI/2),M(0xD79A4A,0.55));bunTop.position.set(2.2,9.93,2.6);cart.add(bunTop);
-
-// ── Condiment rail (behind assembly) ─────────────────────────────────────────
-box(4.6,0.12,1.0,steel,3.3,9.36,0.6);
-// Sauce bottles (ketchup, mustard, mayo)
-[[3.7,0xD9402B],[4.05,0xE8792B],[4.4,0xF2B632]].forEach(a=>cyl(0.17,0.17,1.0,M(a[1],0.5),a[0],9.92,0.6,12));
-// Salad pot
-cyl(0.6,0.6,0.8,pot,2.0,9.78,0.6,24);cyl(0.5,0.5,0.06,M(0x6FA23A,0.7),2.0,10.2,0.6,20);
-// Mayonnaise squeeze bottle
-box(0.9,1.0,0.7,white,5.1,9.92,0.6);box(0.5,0.18,0.4,white,5.1,10.5,0.6);
-// Tissue holder
-box(0.5,0.6,0.5,ssSteel,-5.5,9.75,0.5);box(0.4,0.1,0.4,white,-5.5,10.08,0.5);
-
-// ── Pass tray (customer handoff) ─────────────────────────────────────────────
-box(2.6,0.12,1.1,steel,-3.3,9.36,-1.0);
-// Wrapped burger boxes
-box(1.3,0.65,1.0,kraft,-4.9,9.65,-1.1);box(1.3,0.65,1.0,kraft,-4.9,10.3,-1.1);
-// Fry boxes (yellow)
-box(0.9,0.5,0.8,M(0xE8C02A,0.7),3.2,9.68,-1.0);box(0.9,0.5,0.8,M(0xE8C02A,0.7),4.2,9.68,-1.0);
-
-// ── Wall shelves (backstock) ──────────────────────────────────────────────────
-function shelf(x,y,z,w,d){
-  box(w,0.14,d,wood,x,y,z);
-  between([x-w/2+0.1,y,z],[x-w/2+0.1,15.1,z],0.04,chrome);
-  between([x+w/2-0.1,y,z],[x+w/2-0.1,15.1,z],0.04,chrome);
-  box(w-0.2,0.05,0.07,ledM,x,y-0.12,z+d/2-0.08);
-}
-shelf(3.4,12.95,0.6,4.6,1.0);
-// Spare sauce bottles on shelf
-[[3.4,0xD9402B],[3.8,0xE8792B],[4.2,0xF2B632]].forEach(a=>cyl(0.19,0.19,1.3,M(a[1],0.5),a[0],13.68,0.6,12));
-// Burger bun rolls wrapped in kraft paper
-const roll=cyl(0.35,0.35,1.3,kraft,5.0,13.4,0.6,16);roll.rotation.z=Math.PI/2;
-// Spare boxes (packaging)
-box(0.9,0.7,0.6,white,1.7,13.38,0.6);box(0.9,0.7,0.6,white,2.7,13.38,0.6);
-
-// Second shelf with spice jars
-shelf(-4.7,13.2,1.0,2.4,1.0);
-function jar(x,y,z,col){
-  cyl(0.34,0.34,0.88,new THREE.MeshPhongMaterial({color:0xbfe3ea,transparent:true,opacity:0.25,shininess:160,specular:0xffffff,side:THREE.DoubleSide,depthWrite:false}),x,y+0.44,z,16);
-  cyl(0.29,0.29,0.7,M(col,0.7),x,y+0.4,z,16);
-  cyl(0.36,0.36,0.11,charcoal,x,y+0.94,z,16);
-}
-jar(-5.2,13.28,1.0,0xB5301F);  // Chili sauce
-jar(-4.4,13.28,1.0,0xE0A526);  // Turmeric
-
-// ─── CUSTOMER SIDE: UX FOOD-SAFETY GLASS SHOWCASE ──────────────────────────
-// CONCEPT:
-//   Full-width glass panel facing the customer, with:
-//   • A lower ventilated food display shelf (customers see the food)
-//   • A central pass-through talk/hand opening (1.1m wide × 0.55m high)
-//   • A polished stainless lower sill for passing trays
-//   • Steel frame with rounded corners – looks premium, food-safe
-//   • Slight blue tint + high reflectivity = "deli counter" aesthetic
-
-// Main glass panel left of opening
-const glMain1=box(3.8,5.6,0.06,dispGlass,-3.4,12.1,-2.0);glassObjs.push(glMain1);
-// Main glass panel right of opening
-const glMain2=box(2.6,5.6,0.06,dispGlass,4.6,12.1,-2.0);glassObjs.push(glMain2);
-// Glass above pass-through (transom)
-const glTop=box(4.0,2.5,0.06,dispGlass,1.1,13.65,-2.0);glassObjs.push(glTop);
-// Thin glass strip below pass-through (lower)
-const glBot=box(4.0,0.6,0.06,dispGlass,1.1,9.86,-2.0);glassObjs.push(glBot);
-
-// Frame rails – top + bottom
-box(11.8,0.14,0.14,charcoal,0,14.95,-2.0);
-box(11.8,0.14,0.14,charcoal,0,9.37,-2.0);
-// Frame verticals
-box(0.1,5.6,0.14,charcoal,-5.9,12.1,-2.0);
-box(0.1,5.6,0.14,charcoal,5.9,12.1,-2.0);
-box(0.1,5.6,0.14,charcoal,-0.6,12.1,-2.0);  // left side of opening
-box(0.1,5.6,0.14,charcoal,2.8,12.1,-2.0);   // right side of opening
-
-// Pass-through opening sill (stainless steel) – where food is handed over
-box(4.0,0.12,0.5,ssSteel,1.1,10.46,-2.1);
-
-// End glass panels (sides)
-const endL=box(0.06,5.6,5.0,dispGlass,-5.9,12.1,0.5);glassObjs.push(endL);
-box(0.12,0.14,5.1,charcoal,-5.9,14.95,0.5);box(0.12,0.14,5.1,charcoal,-5.9,9.37,0.5);
-const endR=box(0.06,5.6,5.0,dispGlass,5.9,12.1,0.5);glassObjs.push(endR);
-box(0.12,0.14,5.1,charcoal,5.9,14.95,0.5);box(0.12,0.14,5.1,charcoal,5.9,9.37,0.5);
-
-// Voice/order gap trim (subtle opening outline with rounded edges)
-// Two thin vertical chrome bars framing pass-through slot
-box(0.07,2.6,0.1,chrome,-0.7,11.05,-1.98);
-box(0.07,2.6,0.1,chrome,2.9,11.05,-1.98);
-// Horizontal bar (top of pass-through)
-box(3.7,0.07,0.1,chrome,1.1,12.4,-1.98);
-// Lower sill nosing
-box(3.7,0.07,0.1,chrome,1.1,9.76,-1.98);
-
-// Food showcase lower section: LED-lit display shelf inside glass
-box(10.8,0.1,1.2,wood,0,10.1,-1.5);       // display shelf surface
-box(10.8,0.05,0.07,ledM,0,10.0,-1.0);     // under-shelf LED strip (warm white)
-// Display burger replicas under glass (what customer sees)
-function showBurger(x,z){
-  cyl(0.6,0.6,0.16,M(0xD79A4A,0.6),x,10.26,z,20);       // bun bottom
-  cyl(0.6,0.6,0.12,M(0x4A2A18,0.8),x,10.4,z,20);         // patty
-  cyl(0.64,0.64,0.07,M(0x6FA23A,0.7),x,10.5,z,20);       // lettuce
-  const bt=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,8,0,Math.PI*2,0,Math.PI/2),M(0xD79A4A,0.55));bt.position.set(x,10.57,z);cart.add(bt);
-}
-showBurger(-4.0,-1.5);showBurger(-2.0,-1.5);showBurger(0,-1.5);showBurger(2.0,-1.5);showBurger(4.0,-1.5);
-
-// ─── AWNING SHUTTER (opens toward cook) ───────────────────────────────────────
-const shutter=new THREE.Group();shutter.position.set(0,14.95,3.6);cart.add(shutter);
-const sg=new THREE.Mesh(new THREE.BoxGeometry(10.4,5.5,0.05),awningGlass);sg.position.y=-2.75;shutter.add(sg);glassObjs.push(sg);
-const fr=(w,h,d,x,y,z,m)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m||charcoal);b.position.set(x,y,z);shutter.add(b);};
-fr(10.5,0.18,0.12,0,-0.09,0);fr(10.5,0.18,0.12,0,-5.41,0);
-fr(0.14,5.5,0.12,-5.2,-2.75,0);fr(0.14,5.5,0.12,5.2,-2.75,0);
-fr(2.2,0.1,0.14,0,-5.2,0.12,amber);  // awning branding stripe
-
-// ─── MENU BOARD (behind counter, visible through glass from customer side) ───
-box(5.2,2.6,0.12,amber,-2.8,13.65,-2.3);
-const mt=tex(512,224,(g,w,h)=>{
-  g.fillStyle='#1F1D1B';g.fillRect(0,0,w,h);
-  g.textAlign='center';
-  g.fillStyle='#FFC24A';g.font='bold 44px sans-serif';g.fillText('Menu',w/2,50);
-  g.fillStyle='#FFF3DC';g.font='30px sans-serif';
-  g.fillText('Smash Burger',w/2,96);
-  g.fillText('Cheese Burger',w/2,132);
-  g.fillText('Spicy Burger',w/2,168);
-  g.fillText('Fries',w/2,202);
-});
-const mp=new THREE.Mesh(new THREE.PlaneGeometry(4.9,2.3),new THREE.MeshBasicMaterial({map:mt}));mp.position.set(-2.8,13.65,-2.38);mp.rotation.y=Math.PI;cart.add(mp);
-
-// Shadow and cast
-cart.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-glassObjs.forEach(o=>{o.castShadow=false;});
-
-// ─── PEOPLE: REALISTIC PROPORTIONS ──────────────────────────────────────────
-// Van counter height ≈ 9.3 units. Typical adult is ~1.75m.
-// Van body is 4 units tall starting at y=5. Counter at y=9.3.
-// A realistic standing person should reach roughly y=16.5 (crown) which is
-// just below the patty band at 15.3 → visually correct next to the van.
-// Scale = 1.0 (not 1.15 as before — that made them too tall)
-// Arms brought in to natural resting/working position.
-
-function person(shirt,apron,cap,reachFwd,facingZ){
-  const g=new THREE.Group();
-  const pm=c=>M(c,0.85);
-  const skin=0xC68E67;
-
-  // ── LEGS (longer for realism – 50% of body height) ──────────────────────
-  [-0.33,0.33].forEach(x=>{
-    // Upper leg
-    const uleg=new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.28,2.9,10),pm(0x2F3A4A));
-    uleg.position.set(x,1.45,0);g.add(uleg);
-    // Lower leg / shin
-    const lleg=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.6,10),pm(0x2F3A4A));
-    lleg.position.set(x,4.2,0);g.add(lleg);
-    // Shoe
-    const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.58,0.28,1.1),pm(0x1B1A19));
-    shoe.position.set(x,0.14,facingZ?0.22:0);g.add(shoe);
+  // Overhead utensil rail
+  rod([-5.8,14.1,3.0],[0.0,14.1,3.0], 0.07, chrome);
+  // Hanging utensils (spatula, ladle, tongs × 3 + towel hook)
+  [[-5.0,0x9A958B],[-4.1,0x7A7873],[-3.2,0x9A958B],[-2.3,0xC9402B],[-1.4,0x7A7873]].forEach(u => {
+    rod([u[0],14.1,3.0],[u[0],13.4,3.0], 0.04, chrome);
+    box(0.2, 1.2, 0.07, M(u[1],0.5,0.4), u[0], 12.8, 3.0);
   });
 
-  // ── HIPS / BELT ───────────────────────────────────────────────────────────
-  const hips=new THREE.Mesh(new THREE.BoxGeometry(1.70,0.46,0.90),pm(0x2F3A4A));
-  hips.position.y=5.6;g.add(hips);
+  // ── Flat-top griddle (60cm × 40cm, stainless) ───────────────────────────
+  // Real dimensions: 60cm × 40cm = 6 × 4 units
+  box(4.0, 0.42, 3.4, M(0x3A3836,0.5,0.4), -1.5, 9.5, 2.0);   // griddle body
+  box(0.08, 1.4, 3.4, ssSteel, 0.7, 10.3, 2.0);                // grease splatter guard (back)
+  // Heating coil glow
+  [-2.5,-0.9].forEach(x => cyl(0.6,0.6,0.2, M(0x6B3A1E,0.8), x,9.76,2.0,20));
 
-  // ── TORSO ─────────────────────────────────────────────────────────────────
-  const torso=new THREE.Mesh(new THREE.BoxGeometry(1.80,3.6,0.92),pm(shirt));
-  torso.position.y=7.4;g.add(torso);
-
-  // Apron (cook only)
-  if(apron){
-    const a=new THREE.Mesh(new THREE.BoxGeometry(1.52,2.9,0.10),pm(0xE8D5A0));
-    a.position.set(0,7.2,0.5);g.add(a);
-    const pocket=new THREE.Mesh(new THREE.BoxGeometry(0.58,0.46,0.08),pm(0xD4BF8A));
-    pocket.position.set(0,5.9,0.52);g.add(pocket);
+  // ── Chicken/masala pan + burner base ────────────────────────────────────
+  // Real pan diameter ~22cm = 2.2 units
+  box(2.4, 0.5, 2.4, dark, -4.6, 9.55, 2.4);                   // burner block
+  cyl(1.0, 1.0, 1.0, pot, -4.6, 10.3, 2.4, 28);                // pan body
+  cyl(0.9, 0.9, 0.05, M(0x9C3F1E,0.7), -4.6, 10.84, 2.4, 24); // pan content
+  for (let i=0; i<6; i++) {
+    const a=i/6*Math.PI*2;
+    sph(0.19, M(0xB4561F,0.7), -4.6+0.44*Math.cos(a),10.9,2.4+0.44*Math.sin(a), 1,0.68,1);
   }
+  rod([-3.95,10.95,2.0],[-3.0,11.4,1.6], 0.04, chrome); // pan handle
 
-  // ── SHOULDERS (slight width taper) ───────────────────────────────────────
-  const shldBar=new THREE.Mesh(new THREE.BoxGeometry(2.10,0.38,0.80),pm(shirt));
-  shldBar.position.y=9.1;g.add(shldBar);
+  // ── Assembly board (wood, 35cm × 22cm) ──────────────────────────────────
+  box(3.5, 0.2, 2.2, wood, 2.7, 9.42, 2.6);
+  // Assembled burger in progress
+  cyl(0.68,0.68,0.18, M(0xD79A4A,0.6), 2.3,9.62,2.6, 20);  // bun bottom
+  cyl(0.68,0.68,0.14, M(0x4A2A18,0.8), 2.3,9.78,2.6, 20);  // smash patty
+  cyl(0.72,0.72,0.06, M(0x6FA23A,0.7), 2.3,9.88,2.6, 20);  // lettuce
+  const bunTop=new THREE.Mesh(new THREE.SphereGeometry(0.68,16,8,0,Math.PI*2,0,Math.PI/2), M(0xD79A4A,0.55));
+  bunTop.position.set(2.3,9.94,2.6); cart.add(bunTop);
 
-  // ── NECK ─────────────────────────────────────────────────────────────────
-  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.24,0.56,8),pm(skin));
-  neck.position.y=9.56;g.add(neck);
+  // ── Condiment + sauce rail (stainless, behind assembly board) ───────────
+  box(4.6, 0.12, 1.0, steel, 3.3, 9.36, 0.6);
+  // Sauce bottles: ketchup | sriracha | mustard
+  [[3.7,0xD9402B],[4.1,0xE8792B],[4.5,0xF2B632]].forEach(a =>
+    cyl(0.17,0.17,1.0, M(a[1],0.5), a[0],9.92,0.6, 12)
+  );
+  cyl(0.6,0.6,0.8, pot, 2.0,9.78,0.6, 24);                     // salad pot
+  cyl(0.5,0.5,0.06, M(0x6FA23A,0.7), 2.0,10.2,0.6, 20);        // salad content
+  box(0.9,1.0,0.7, white, 5.1,9.92,0.6);                        // mayo squeeze bottle
+  box(0.5,0.18,0.4, white, 5.1,10.5,0.6);                       // cap
+  // Tissue holder (stainless wall-mount)
+  box(0.6,0.7,0.5, ssSteel, -5.5,9.75,0.5);
+  box(0.46,0.1,0.38, white, -5.5,10.1,0.5);
 
-  // ── HEAD ─────────────────────────────────────────────────────────────────
-  const head=new THREE.Mesh(new THREE.SphereGeometry(0.58,16,10),pm(skin));
-  head.position.y=10.3;g.add(head);
-  // Simple face features
-  const lEye=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6),pm(0x2B2826));
-  lEye.position.set(-0.21,10.38,0.52);g.add(lEye);
-  const rEye=lEye.clone();rEye.position.set(0.21,10.38,0.52);g.add(rEye);
+  // ── Pass tray / handoff zone (customer receives food here) ───────────────
+  // Sits on the counter at z≈−1 (20cm inward from customer glass)
+  box(2.6, 0.12, 1.1, steel, -3.3, 9.36, -1.0);
+  // Wrapped burger boxes
+  box(1.2,0.6,0.9, kraft, -4.8,9.65,-1.1);
+  box(1.2,0.6,0.9, kraft, -4.8,10.26,-1.1);
+  // Fry boxes
+  box(0.9,0.5,0.8, M(0xE8C02A,0.7), 3.0,9.68,-1.0);
+  box(0.9,0.5,0.8, M(0xE8C02A,0.7), 4.1,9.68,-1.0);
 
-  // ── CAP ──────────────────────────────────────────────────────────────────
-  if(cap){
-    const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.63,0.66,0.46,16),pm(0x2B2826));
-    crown.position.y=10.95;g.add(crown);
-    const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.84,0.84,0.09,16,1,false,0,Math.PI),pm(0x2B2826));
-    brim.position.set(0,10.72,0.44);brim.rotation.x=0.08;g.add(brim);
+  // ── Wall shelves (backstock within reach) ─────────────────────────────────
+  function shelf(x,y,z,w,d){
+    box(w,0.14,d, wood, x,y,z);
+    rod([x-w/2+0.1,y,z],[x-w/2+0.1,15.1,z], 0.04, chrome); // vertical support L
+    rod([x+w/2-0.1,y,z],[x+w/2-0.1,15.1,z], 0.04, chrome); // vertical support R
+    box(w-0.2,0.05,0.07, ledM, x,y-0.12,z+d/2-0.08);        // LED under-shelf
   }
+  // Right shelf — spare sauces, bun rolls, packaging
+  shelf(3.4, 12.95, 0.6, 4.6, 1.0);
+  [[3.4,0xD9402B],[3.8,0xE8792B],[4.2,0xF2B632]].forEach(a =>
+    cyl(0.19,0.19,1.3, M(a[1],0.5), a[0],13.68,0.6, 12)
+  );
+  const roll = cyl(0.35,0.35,1.3, kraft, 5.0,13.4,0.6, 16); roll.rotation.z=Math.PI/2;
+  box(0.9,0.7,0.6, white, 1.7,13.38,0.6);
+  box(0.9,0.7,0.6, white, 2.7,13.38,0.6);
+  // Left shelf — spice jars, oil
+  shelf(-4.7, 13.2, 1.0, 2.4, 1.0);
+  function jar(x,y,z,col){
+    const jG = new THREE.MeshPhongMaterial({color:0xbfe3ea,transparent:true,opacity:0.26,shininess:160,specular:0xffffff,side:THREE.DoubleSide,depthWrite:false});
+    cyl(0.34,0.34,0.88, jG, x,y+0.44,z, 16);
+    cyl(0.29,0.29,0.7, M(col,0.7), x,y+0.40,z, 16);
+    cyl(0.36,0.36,0.11, charcoal, x,y+0.94,z, 16);
+  }
+  jar(-5.2, 13.28, 1.0, 0xB5301F);  // chili sauce
+  jar(-4.4, 13.28, 1.0, 0xE0A526);  // turmeric spice
 
-  // ── ARMS ─────────────────────────────────────────────────────────────────
-  [-1.14,1.14].forEach((x,i)=>{
-    const shoulder=new THREE.Group();shoulder.position.set(x,9.0,0);
-    const reach=(i===0?reachFwd:reachFwd*0.5);
-    shoulder.rotation.x=-reach;g.add(shoulder);
-    // Upper arm
-    const uarm=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.1,8),pm(shirt));
-    uarm.position.y=-1.05;shoulder.add(uarm);
-    // Forearm (elbow pivot)
-    const elbow=new THREE.Group();elbow.position.y=-2.1;shoulder.add(elbow);
-    const farm=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.15,2.0,8),pm(skin));
-    farm.position.y=-1.0;elbow.add(farm);
-    // Hand
-    const hand=new THREE.Mesh(new THREE.SphereGeometry(0.20,8,6),pm(skin));
-    hand.position.y=-2.1;elbow.add(hand);
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  GLASS CONFIGURATION  (blueprint-accurate)
+  //
+  //  Rule: 1 unit = 10 cm. Glass panels fit standard 10 mm toughened glass.
+  //  Glass zone height: y 9.15 → 14.95 = 58 cm above counter
+  //
+  //  ┌─────────────────── LEFT END ──────── RIGHT END ─────────────────────┐
+  //  │  x= −7.5                                              x= +7.5       │
+  //  │  GLASS PANEL (80cm×58cm)                 GLASS PANEL (80cm×58cm)   │
+  //  │                                                                     │
+  //  │  CUSTOMER FRONT (z=−3.95)                COOK SIDE (z=+4) OPEN     │
+  //  │  Glass + 60cm pass-through slot           No glass – cook works here│
+  //  │  Stainless sill + ordering ledge          Wing panels at extremes   │
+  //  └─────────────────────────────────────────────────────────────────────┘
+  // ══════════════════════════════════════════════════════════════════════
+
+  // Frame utility: add box to cart AND push to glassObjs
+  const gBox=(w,h,d,x,y,z)=>{const m=box(w,h,d,dispGlass,x,y,z);glassObjs.push(m);return m;};
+
+  // ── LEFT end panel  x = −7.42  (80cm × 58cm, full depth of cart) ────────
+  gBox(0.06, 5.8, 8.0, -7.42, 12.05, 0.0);
+  box(0.14,0.14,8.1, charcoal, -7.42,14.95, 0.0);   // top rail
+  box(0.14,0.14,8.1, charcoal, -7.42, 9.15, 0.0);   // bottom rail
+  box(0.14,5.8,0.14, charcoal, -7.42,12.05,-4.0);   // customer-side post
+  box(0.14,5.8,0.14, charcoal, -7.42,12.05,+4.0);   // cook-side post
+
+  // ── RIGHT end panel  x = +7.42  (80cm × 58cm) ────────────────────────────
+  gBox(0.06, 5.8, 8.0, +7.42, 12.05, 0.0);
+  box(0.14,0.14,8.1, charcoal,  7.42,14.95, 0.0);
+  box(0.14,0.14,8.1, charcoal,  7.42, 9.15, 0.0);
+  box(0.14,5.8,0.14, charcoal,  7.42,12.05,-4.0);
+  box(0.14,5.8,0.14, charcoal,  7.42,12.05,+4.0);
+
+  // ── CUSTOMER FRONT glass wall  z = −3.95  ────────────────────────────────
+  //
+  //  Total glass width:  150 cm (x −7.42 → +7.42)
+  //  Pass-through slot:  60 cm wide × 45 cm tall, centred at x=0
+  //    Left edge:  x = −3.0  Right edge: x = +3.0
+  //    Bottom:     y =  9.15 (counter level)
+  //    Top:        y = 13.65 (45 cm = comfortable reach height from outside)
+  //  Transom above:  60 cm wide × 13 cm tall (y 13.65 → 14.95)
+  //  Glass LEFT of slot:  45 cm  (x −7.42 → −3.0)
+  //  Glass RIGHT of slot: 45 cm  (x +3.0 → +7.42)
+  //
+  gBox(4.42, 5.8, 0.06, -5.21, 12.05, -3.95);   // glass LEFT  (45cm wide)
+  gBox(4.42, 5.8, 0.06, +5.21, 12.05, -3.95);   // glass RIGHT (45cm wide)
+  gBox(6.0,  1.3, 0.06,  0.0,  14.30, -3.95);   // transom ABOVE pass-through (13cm)
+
+  // Frame: top + bottom horizontal rails
+  box(14.84,0.14,0.14, charcoal,  0.0, 14.95, -3.95);  // top rail
+  box(14.84,0.14,0.14, charcoal,  0.0,  9.15, -3.95);  // bottom rail (at counter height)
+  // Frame: vertical mullions either side of opening
+  box(0.14,5.8,0.14, charcoal, -3.0, 12.05, -3.95);    // left of opening
+  box(0.14,5.8,0.14, charcoal, +3.0, 12.05, -3.95);    // right of opening
+  // Chrome trim accent on the pass-through opening edges
+  box(6.0,0.08,0.12, chrome,  0.0,13.65,-3.95);         // top edge of opening
+  box(6.0,0.08,0.12, chrome,  0.0, 9.15,-3.95);         // bottom sill front face
+
+  // Stainless steel counter sill  — customer leans / rests here
+  // Extends 25cm outward from glass on the customer side
+  box(6.0, 0.14, 2.5, ssSteel,  0.0, 9.14, -5.2);       // sill plate (25cm deep)
+  box(0.1, 0.14, 2.5, chrome,  -3.1, 9.14, -5.2);       // left sill edge
+  box(0.1, 0.14, 2.5, chrome,  +3.1, 9.14, -5.2);       // right sill edge
+  // Sill front lip (nosing strip)
+  box(6.0, 0.1, 0.1, ssSteel,  0.0, 9.07, -6.4);        // sill nosing
+
+  // ── COOK SIDE WING PANELS  (z≈+3.5, at extreme ends only) ────────────────
+  //  20cm inward from each end panel, on the cook side.
+  //  Acts as wind shield / end screen for the service person.
+  //  Cook works freely in the central 110cm open zone.
+  gBox(0.06, 5.8, 1.5, -6.75, 12.05, 3.5);             // LEFT cook wing
+  box(0.14,5.8,0.14, charcoal, -6.75,12.05, 4.75);      // outer edge post
+  box(0.14,5.8,0.14, charcoal, -6.75,12.05, 2.75);      // inner edge post
+
+  gBox(0.06, 5.8, 1.5, +6.75, 12.05, 3.5);             // RIGHT cook wing
+  box(0.14,5.8,0.14, charcoal, +6.75,12.05, 4.75);
+  box(0.14,5.8,0.14, charcoal, +6.75,12.05, 2.75);
+
+  // ── Food display shelf (inside glass, customer-visible) ───────────────────
+  //  Low shelf at counter+4cm, running full width, back-lit with warm LEDs
+  box(14.84, 0.1, 0.9, wood, 0, 9.56, -3.5);            // shelf surface
+  box(14.84, 0.05, 0.07, ledWarm, 0, 9.46, -3.08);      // warm LED strip (back-lit)
+  // 5 assembled burger replicas visible to the customer
+  function displayBurger(x) {
+    cyl(0.58,0.58,0.15, M(0xD79A4A,0.6), x,9.72,-3.5, 20);  // bun base
+    cyl(0.58,0.58,0.12, M(0x4A2A18,0.8), x,9.86,-3.5, 20);  // patty
+    cyl(0.62,0.62,0.07, M(0x6FA23A,0.7), x,9.96,-3.5, 20);  // lettuce
+    const bt = new THREE.Mesh(new THREE.SphereGeometry(0.58,16,8,0,Math.PI*2,0,Math.PI/2), M(0xD79A4A,0.55));
+    bt.position.set(x,10.03,-3.5); cart.add(bt);
+  }
+  [-5.0,-2.5, 0, 2.5, 5.0].forEach(x => displayBurger(x));
+
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  CUSTOMER AREA DESIGN  (z < −3.95 side, what customers see + interact)
+  //  Budget-conscious but high-impact decorations:
+  //    1. Illuminated menu board   — left panel, inside glass
+  //    2. QR payment stand         — on the stainless sill
+  //    3. String Edison lights     — along customer-facing awning edge
+  //    4. Amber accent stripe      — counter level highlight
+  //    5. Brand badge              — right glass panel
+  // ══════════════════════════════════════════════════════════════════════
+
+  // ── 1. MENU BOARD ─────────────────────────────────────────────────────────
+  //  Amber-framed LED lightboard, 55cm × 28cm, inside glass on the LEFT panel
+  //  Customer reads from outside (rotation.y=π faces it outward)
+  box(5.5, 2.8, 0.14, amber, -4.8, 12.5, -4.08);        // amber backboard frame
+  const menuTex = tex(512,256,(g,w,h) => {
+    // Background
+    g.fillStyle='#141210'; g.fillRect(0,0,w,h);
+    // Top glow strip
+    const hdr=g.createLinearGradient(0,0,w,0);
+    hdr.addColorStop(0,'#C98A3E'); hdr.addColorStop(0.5,'#FFC24A'); hdr.addColorStop(1,'#C98A3E');
+    g.fillStyle=hdr; g.fillRect(0,0,w,28);
+    // Title
+    g.fillStyle='#141210'; g.textAlign='center'; g.font='bold 22px sans-serif';
+    g.fillText('BURGERS', w/2, 20);
+    // Divider
+    g.strokeStyle='#4A3A18'; g.lineWidth=1;
+    g.beginPath(); g.moveTo(16,36); g.lineTo(w-16,36); g.stroke();
+    // Menu items
+    const items=[
+      ['Smash Burger', ''],
+      ['Cheese Burger',''],
+      ['Spicy Burger', ''],
+      ['Double Smash', ''],
+    ];
+    g.fillStyle='#FFF3DC'; g.font='24px sans-serif';
+    items.forEach(([name,_],i)=>{
+      g.fillText(name, w/2, 68+i*44);
+    });
+    // Bottom tag line
+    g.fillStyle='#8B6914'; g.font='italic 18px sans-serif';
+    g.fillText('Made fresh · Every order', w/2, 242);
   });
+  const mp = new THREE.Mesh(new THREE.PlaneGeometry(5.2,2.5), new THREE.MeshBasicMaterial({map:menuTex}));
+  mp.position.set(-4.8, 12.5, -4.15); mp.rotation.y=Math.PI; cart.add(mp);
 
-  // Scale set to 1.6 — calibrated so counter at y=9.3 sits at 58% of person height,
-  // matching a real 1.0m counter on a 1.75m adult (57% ratio).
-  g.scale.setScalar(1.6);
-  g.traverse(o=>{if(o.isMesh){o.castShadow=true;}});
-  return g;
+  // ── 2. QR PAYMENT STAND ──────────────────────────────────────────────────
+  //  Stainless stand on the right side of the sill, angled toward customer
+  //  Real size: 24cm × 24cm plate on a small stand
+  const qrStand = box(2.6,0.1,0.1, ssSteel, 3.6,9.21,-4.5);    // stand base rod
+  const qrBack  = box(2.5,2.6,0.12, ssSteel, 3.6,10.6,-4.6);   // backing plate
+  qrBack.rotation.x = -0.22;                                     // slight tilt toward customer
+  const qrTex = tex(256,256,(g,w,h)=>{
+    g.fillStyle='#FFFFFF'; g.fillRect(0,0,w,h);
+    // QR finder corners
+    [[8,8],[8,w-56],[w-56,8]].forEach(([fx,fy])=>{
+      g.fillStyle='#111'; g.fillRect(fx,fy,48,48);
+      g.fillStyle='#fff'; g.fillRect(fx+6,fy+6,36,36);
+      g.fillStyle='#111'; g.fillRect(fx+13,fy+13,22,22);
+    });
+    // QR data cells (deterministic pattern)
+    g.fillStyle='#111';
+    let rs2=42;
+    for(let r=0;r<14;r++){for(let c2=0;c2<14;c2++){
+      rs2=(rs2*1664525+1013904223)&0xFFFFFFFF;
+      if((rs2>>>16)&1){g.fillRect(8+c2*17,8+r*17,16,16);}
+    }}
+    // Brand label
+    g.fillStyle='#C98A3E'; g.textAlign='center'; g.font='bold 20px sans-serif';
+    g.fillText('Scan to Pay',w/2,w-8);
+  });
+  const qrPlate = new THREE.Mesh(new THREE.PlaneGeometry(2.3,2.3), new THREE.MeshBasicMaterial({map:qrTex}));
+  qrPlate.position.set(3.6,10.6,-4.67); qrPlate.rotation.set(-0.22,Math.PI,0); cart.add(qrPlate);
+
+  // ── 3. STRING LIGHTS (Edison-style) along customer-facing awning edge ─────
+  //  Wire: thin cylinder, full width, at y=14.9, z=−3.95
+  //  Bulbs: every 20cm (2 units) = 15 bulbs across 150cm span
+  const wireMat = M(0x3A3A3A,0.8);
+  const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,14.84,6), wireMat);
+  wire.rotation.z = Math.PI/2; wire.position.set(0,14.9,-3.9); cart.add(wire);
+  for (let bx=-6.8; bx<=6.9; bx+=1.8) {
+    // Short drop wire
+    rod([bx,14.9,-3.9],[bx,14.72,-3.9], 0.012, wireMat);
+    // Edison bulb body
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.14,8,6), ledWarm);
+    bulb.position.set(bx,14.62,-3.9); cart.add(bulb);
+    // Bulb cap
+    cyl(0.07,0.07,0.1, M(0x9A958B,0.4,0.6), bx,14.76,-3.9, 8);
+  }
+
+  // ── 4. AMBER ACCENT STRIPE at customer counter edge ───────────────────────
+  box(14.84,0.1,0.1, M(0xFFC24A,0.4), 0,9.24,-3.95);    // amber line at glass base
+  // Corner accent dots
+  [-7.1,7.1].forEach(x=>sph(0.13, M(0xFFC24A,0.5), x,9.24,-3.95));
+
+  // ── 5. BRAND BADGE on right outer panel (customer-visible right end) ──────
+  const logoTex = tex(256,256,(g)=>{
+    g.beginPath(); g.arc(128,128,122,0,Math.PI*2);
+    g.fillStyle='#C98A3E'; g.fill();
+    g.beginPath(); g.arc(128,128,106,0,Math.PI*2);
+    g.strokeStyle='#FFF1D0'; g.lineWidth=5; g.stroke();
+    g.fillStyle='#1A1612'; g.textAlign='center';
+    g.font='bold 34px sans-serif'; g.fillText('BURGER',128,112);
+    g.font='bold 26px sans-serif'; g.fillText('VAN',128,152);
+    g.fillStyle='#C98A3E'; g.font='18px sans-serif';
+    g.fillText('★  STREET FOOD  ★',128,194);
+  });
+  const badge=new THREE.Mesh(new THREE.CircleGeometry(1.9,40),new THREE.MeshBasicMaterial({map:logoTex,transparent:true}));
+  badge.position.set(5.8,11.6,-4.1); badge.rotation.y=Math.PI; cart.add(badge);
+
+  // ── Customer-side exterior wall (body panel decoration) ───────────────────
+  // A subtle horizontal stripe on the lower body panel (outside, customer facing)
+  box(14.84,0.3,0.06, M(0xC98A3E,0.5), 0,8.6,-4.03);    // brand stripe on body
+
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  AWNING SHUTTER  (cook side, lifts up and over when in service)
+  //  Hinge at y=14.95, z=+3.6. Rotation.x=0 = closed, =−2.5 = open (above)
+  // ══════════════════════════════════════════════════════════════════════
+
+  const shutter = new THREE.Group(); shutter.position.set(0,14.95,3.6); cart.add(shutter);
+  const sg = new THREE.Mesh(new THREE.BoxGeometry(10.4,5.5,0.05), awningGlass);
+  sg.position.y = -2.75; shutter.add(sg); glassObjs.push(sg);
+  const frm=(w,h,d,x,y,z,mat)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat||charcoal);b.position.set(x,y,z);shutter.add(b);};
+  frm(10.5,0.18,0.12, 0,-0.09,0);             // top rail
+  frm(10.5,0.18,0.12, 0,-5.41,0);             // bottom rail
+  frm(0.14,5.5,0.12, -5.2,-2.75,0);           // left post
+  frm(0.14,5.5,0.12,  5.2,-2.75,0);           // right post
+  frm(2.2,0.1,0.14, 0,-5.2,0.12, amber);      // brand accent at bottom
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  SHADOW & RENDERING SETUP
+  // ══════════════════════════════════════════════════════════════════════
+  cart.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+  glassObjs.forEach(o=>{o.castShadow=false;});
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  PEOPLE  (scale 1.6 → person = 174 cm real-world)
+  //  Counter at y=9.15 = 91.5 cm = 53% of person height ✓ (matches reality)
+  //  Cook: stands on z=+8 side  |  Customer: stands on z=−8 side
+  // ══════════════════════════════════════════════════════════════════════
+
+  function person(shirt, apron, cap, reachFwd) {
+    const g = new THREE.Group();
+    const pm = c => M(c,0.85);
+    const skin = 0xC68E67;
+
+    // ── Legs (upper + lower segment, realistic 50% of body height) ──────
+    [-0.33,0.33].forEach(x=>{
+      // Upper leg (thigh)
+      const ul = new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.28,2.9,10), pm(0x2F3A4A));
+      ul.position.set(x,1.45,0); g.add(ul);
+      // Lower leg (shin)
+      const ll = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.6,10), pm(0x2F3A4A));
+      ll.position.set(x,4.20,0); g.add(ll);
+      // Shoe (slightly forward of body centre)
+      const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.26,1.1), pm(0x1B1A19));
+      shoe.position.set(x,0.13,0.18); g.add(shoe);
+    });
+
+    // ── Hips / belt ──────────────────────────────────────────────────────
+    const hips = new THREE.Mesh(new THREE.BoxGeometry(1.70,0.46,0.90), pm(0x2F3A4A));
+    hips.position.y=5.6; g.add(hips);
+
+    // ── Torso ─────────────────────────────────────────────────────────────
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(1.80,3.6,0.92), pm(shirt));
+    torso.position.y=7.4; g.add(torso);
+
+    if (apron) {
+      const a = new THREE.Mesh(new THREE.BoxGeometry(1.52,2.9,0.10), pm(0xE8D5A0));
+      a.position.set(0,7.2,0.5); g.add(a);
+      const pkt = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.46,0.09), pm(0xD4BF8A));
+      pkt.position.set(0,5.9,0.52); g.add(pkt);
+    }
+
+    // ── Shoulder bar ──────────────────────────────────────────────────────
+    const shld = new THREE.Mesh(new THREE.BoxGeometry(2.10,0.38,0.80), pm(shirt));
+    shld.position.y=9.1; g.add(shld);
+
+    // ── Neck + head ───────────────────────────────────────────────────────
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.24,0.56,8), pm(skin));
+    neck.position.y=9.56; g.add(neck);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.58,16,10), pm(skin));
+    head.position.y=10.3; g.add(head);
+    // Minimal face
+    [-0.21,0.21].forEach(ex=>{
+      const eye=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6),pm(0x2B2826));
+      eye.position.set(ex,10.38,0.52); g.add(eye);
+    });
+
+    if (cap) {
+      const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.63,0.66,0.46,16), pm(0x2B2826));
+      crown.position.y=10.95; g.add(crown);
+      const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.84,0.84,0.09,16,1,false,0,Math.PI), pm(0x2B2826));
+      brim.position.set(0,10.72,0.44); brim.rotation.x=0.08; g.add(brim);
+    }
+
+    // ── Arms (upper arm + forearm segments) ──────────────────────────────
+    [-1.14,1.14].forEach((x,i)=>{
+      const shGroup=new THREE.Group(); shGroup.position.set(x,9.0,0);
+      shGroup.rotation.x=-(i===0?reachFwd:reachFwd*0.5);
+      g.add(shGroup);
+      const ua=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.20,2.1,8),pm(shirt));
+      ua.position.y=-1.05; shGroup.add(ua);
+      const elbow=new THREE.Group(); elbow.position.y=-2.1; shGroup.add(elbow);
+      const fa=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.15,2.0,8),pm(skin));
+      fa.position.y=-1.0; elbow.add(fa);
+      const hand=new THREE.Mesh(new THREE.SphereGeometry(0.20,8,6),pm(skin));
+      hand.position.y=-2.1; elbow.add(hand);
+    });
+
+    // Scale 1.6 → 174 cm = realistic adult height
+    g.scale.setScalar(1.6);
+    g.traverse(o=>{if(o.isMesh) o.castShadow=true;});
+    return g;
+  }
+
+  const people = new THREE.Group();
+
+  // Cook — stands 90cm from van's cook-side face (z=+4+9=+8.0 scaled world units)
+  // Faces the counter (rotation.y = π)
+  const cook = person(0x3B3F46, true, true, 0.75);
+  cook.position.set(-0.5, 0, 8.0);
+  cook.rotation.y = Math.PI;
+  people.add(cook);
+
+  // Customer — stands 60cm from the customer-side glass (z=−4−6=−8.5)
+  // Faces the van (rotation.y = 0)
+  const buyer = person(0x6F8F7A, false, false, 0.20);
+  buyer.position.set(1.0, 0, -8.5);
+  buyer.rotation.y = 0;
+  people.add(buyer);
+
+  return { cart, glassObjs, shutter, people };
 }
 
-const people=new THREE.Group();
-
-// Cook: stands on the open (cook) side, rotation so they face the counter
-// Door face is at z=4.03; cook stands ~1m away (≈8-9 units at this scale)
-const cook=person(0x3B3F46,true,true,0.75,true);
-cook.position.set(-0.5,0,7.0);
-cook.rotation.y=Math.PI;   // facing the van (toward negative Z)
-people.add(cook);
-
-// Customer: stands on the customer side (negative Z), facing the glass window
-// Glass wall at z=-2.0; customer stands ~0.7m away ≈ 6 units → z=-8.0
-const buyer=person(0x6F8F7A,false,false,0.20,false);
-buyer.position.set(1.8,0,-8.5);
-buyer.rotation.y=0;         // facing the van (toward positive Z)
-people.add(buyer);
-
-return {cart,glassObjs,shutter,people};
-}
-//#SCENE-END
+// ═══════════════════════════════════════════════════════════════════════════
+//  BOOTSTRAP
+// ═══════════════════════════════════════════════════════════════════════════
 
 function showMsg(t){const m=document.getElementById('msg');m.textContent=t;m.classList.remove('done');}
 function load(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 
 function init(){
-const THREE=window.THREE;
-const stage=document.getElementById('stage');
-const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let R;
-try{R=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});}
-catch(e){showMsg('WebGL is unavailable in this browser.');return;}
-const small=Math.min(window.innerWidth,window.innerHeight)<700;
-R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
-R.outputEncoding=THREE.sRGBEncoding;
-R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.1;
-stage.appendChild(R.domElement);
+  const THREE = window.THREE;
+  const stage = document.getElementById('stage');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let R;
+  try{
+    R=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+  }catch(e){showMsg('WebGL unavailable in this browser.');return;}
+  const small = Math.min(window.innerWidth,window.innerHeight)<700;
+  R.shadowMap.enabled=true;
+  R.shadowMap.type=THREE.PCFSoftShadowMap;
+  R.outputEncoding=THREE.sRGBEncoding;
+  R.toneMapping=THREE.ACESFilmicToneMapping;
+  R.toneMappingExposure=1.1;
+  stage.appendChild(R.domElement);
 
-const scene=new THREE.Scene();
-const cam=new THREE.PerspectiveCamera(35,1,0.1,400);
+  const scene = new THREE.Scene();
+  const cam   = new THREE.PerspectiveCamera(35,1,0.1,400);
 
-function tex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;}
-const built=buildCart(THREE,tex);
-const cart=built.cart,shutter=built.shutter;
-scene.add(cart);scene.add(built.people);
-
-// Ground shadow
-const blob=tex(256,256,(g)=>{const gr=g.createRadialGradient(128,128,10,128,128,126);gr.addColorStop(0,'rgba(0,0,0,0.5)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,256,256);});
-const bl=new THREE.Mesh(new THREE.PlaneGeometry(38,26),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false}));bl.rotation.x=-Math.PI/2;bl.position.set(-0.5,0.02,0);scene.add(bl);
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.ShadowMaterial({opacity:0.28}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-
-// Lighting
-const amb=new THREE.HemisphereLight(0xffffff,0x8a8070,0.9);scene.add(amb);
-const sun=new THREE.DirectionalLight(0xfff2dd,1.0);sun.position.set(-14,30,18);sun.castShadow=true;
-const ms=small?1024:2048;sun.shadow.mapSize.set(ms,ms);sun.shadow.bias=-0.0005;
-const sc=sun.shadow.camera;sc.left=-28;sc.right=28;sc.top=28;sc.bottom=-28;sc.far=110;scene.add(sun);
-// Warm LED glow (canopy underlight)
-const glow=new THREE.PointLight(0xFFB347,0,24);glow.position.set(0,14.4,0);scene.add(glow);
-const glow2=new THREE.PointLight(0xFFB347,0,16);glow2.position.set(0,12,6);scene.add(glow2);
-const glow3=new THREE.PointLight(0xFFB347,0,10);glow3.position.set(2,12,0);scene.add(glow3);
-// Customer side fill light (makes glass shimmer from that angle)
-const custLight=new THREE.PointLight(0xd0efff,0,30);custLight.position.set(0,13,-12);scene.add(custLight);
-
-const root=document.documentElement;
-const theme=document.getElementById('themeColor');
-const mDay=document.getElementById('mDay'),mDusk=document.getElementById('mDusk');
-function setMode(m){
-  const dusk=m==='dusk';
-  root.setAttribute('data-mode',m);
-  amb.intensity=dusk?0.28:0.9;amb.color.set(dusk?0x8fa3c8:0xffffff);
-  sun.intensity=dusk?0.1:1.0;
-  glow.intensity=dusk?1.7:0;glow2.intensity=dusk?1.0:0;glow3.intensity=dusk?0.8:0;
-  custLight.intensity=dusk?0.6:0;
-  mDay.setAttribute('aria-pressed',String(!dusk));mDusk.setAttribute('aria-pressed',String(dusk));
-  theme.setAttribute('content',dusk?'#171b21':'#dfe4e7');
-}
-mDay.onclick=()=>setMode('day');mDusk.onclick=()=>setMode('dusk');
-setMode('day');
-
-// Camera controls
-const target=new THREE.Vector3(-0.5,9.5,0);
-let th=0.7,ph=0.28,zoom=1,fitDist=46,auto=!reduce,vt=null,shutTarget=0;
-const pointers=new Map();let pinch=0;
-
-function fit(){
-  const w=stage.clientWidth||window.innerWidth,h=stage.clientHeight||window.innerHeight;
-  R.setPixelRatio(Math.min(window.devicePixelRatio||1,small?1.75:2));
-  R.setSize(w,h,false);
-  cam.aspect=w/h;cam.updateProjectionMatrix();
-  fitDist=Math.max(42,40/cam.aspect);
-}
-fit();window.addEventListener('resize',fit);
-if(window.ResizeObserver)new ResizeObserver(fit).observe(stage);
-
-const clampZoom=()=>{zoom=Math.max(0.4,Math.min(1.8,zoom));};
-function syncAuto(){document.getElementById('tAuto').setAttribute('aria-pressed',String(auto));}
-function stopAuto(){if(auto){auto=false;syncAuto();}}
-function goView(t,p){
-  stopAuto();
-  const d=(((t-th+Math.PI)%(2*Math.PI))+2*Math.PI)%(2*Math.PI)-Math.PI;
-  if(reduce){th=th+d;ph=p;vt=null;}else{vt={t:th+d,p:p};}
-}
-
-stage.addEventListener('pointerdown',e=>{
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  try{stage.setPointerCapture(e.pointerId);}catch(x){}
-  stage.classList.add('drag');vt=null;stopAuto();
-  if(pointers.size===2){const a=[...pointers.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}
-});
-stage.addEventListener('pointermove',e=>{
-  const p=pointers.get(e.pointerId);if(!p)return;
-  if(pointers.size===1){
-    th-=(e.clientX-p.x)*0.008;ph=Math.max(0.02,Math.min(1.4,ph+(e.clientY-p.y)*0.006));
-    p.x=e.clientX;p.y=e.clientY;
-  }else if(pointers.size===2){
-    p.x=e.clientX;p.y=e.clientY;
-    const a=[...pointers.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
-    if(pinch>0&&d>0){zoom*=pinch/d;clampZoom();}pinch=d;
+  function tex(w,h,draw){
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    draw(c.getContext('2d'),w,h);
+    const t=new THREE.CanvasTexture(c);
+    t.encoding=THREE.sRGBEncoding; t.anisotropy=4; return t;
   }
-});
-function up(e){pointers.delete(e.pointerId);pinch=0;if(!pointers.size)stage.classList.remove('drag');}
-stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
-stage.addEventListener('wheel',e=>{e.preventDefault();zoom*=Math.exp(e.deltaY*0.0012);clampZoom();},{passive:false});
-stage.addEventListener('keydown',e=>{
-  const k=e.key;let used=true;
-  if(k==='ArrowLeft'){th-=0.12;}else if(k==='ArrowRight'){th+=0.12;}
-  else if(k==='ArrowUp'){ph=Math.min(1.4,ph+0.08);}else if(k==='ArrowDown'){ph=Math.max(0.02,ph-0.08);}
-  else if(k==='+'||k==='='){zoom*=0.9;clampZoom();}else if(k==='-'){zoom*=1.1;clampZoom();}
-  else used=false;
-  if(used){e.preventDefault();vt=null;stopAuto();}
-});
 
-document.getElementById('vSvc').onclick=()=>goView(0,0.12);
-document.getElementById('vQ').onclick=()=>goView(0.7,0.28);
-document.getElementById('vBack').onclick=()=>goView(Math.PI,0.12);
-document.getElementById('vTop').onclick=()=>goView(0,1.4);
-document.getElementById('zIn').onclick=()=>{zoom*=0.85;clampZoom();};
-document.getElementById('zOut').onclick=()=>{zoom*=1.18;clampZoom();};
-document.getElementById('tAuto').onclick=()=>{auto=!auto;vt=null;syncAuto();};
-const tS=document.getElementById('tShutter');
-tS.onclick=()=>{const open=shutTarget===0;shutTarget=open?-2.5:0;tS.setAttribute('aria-pressed',String(open));tS.textContent=open?'Lower awning':'Raise awning';};
-const tG=document.getElementById('tGlass');
-tG.onclick=()=>{const on=tG.getAttribute('aria-pressed')!=='true';tG.setAttribute('aria-pressed',String(on));built.glassObjs.forEach(o=>{o.visible=on;});};
-const tP=document.getElementById('tPeople');
-tP.onclick=()=>{const on=tP.getAttribute('aria-pressed')!=='true';tP.setAttribute('aria-pressed',String(on));built.people.visible=on;};
+  const built = buildCart(THREE, tex);
+  scene.add(built.cart);
+  scene.add(built.people);
 
-const tmp=new THREE.Vector3();
-let first=true;
-function loop(){
-  requestAnimationFrame(loop);
-  if(vt){th+=(vt.t-th)*0.12;ph+=(vt.p-ph)*0.12;if(Math.abs(vt.t-th)<0.002&&Math.abs(vt.p-ph)<0.002){th=vt.t;ph=vt.p;vt=null;}}
-  else if(auto&&!pointers.size){th+=0.0032;}
-  shutter.rotation.x+=(shutTarget-shutter.rotation.x)*0.12;
-  const dist=Math.max(16,Math.min(120,fitDist*zoom));
-  cam.position.set(target.x+dist*Math.cos(ph)*Math.sin(th),target.y+dist*Math.sin(ph),target.z+dist*Math.cos(ph)*Math.cos(th));
-  cam.lookAt(target);cam.updateMatrixWorld();
-  R.render(scene,cam);
-  if(first){first=false;document.getElementById('msg').classList.add('done');}
-}
-loop();
+  // Ground shadow blob
+  const blob=tex(256,256,(g)=>{
+    const gr=g.createRadialGradient(128,128,10,128,128,126);
+    gr.addColorStop(0,'rgba(0,0,0,0.5)');gr.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=gr;g.fillRect(0,0,256,256);
+  });
+  const bl=new THREE.Mesh(new THREE.PlaneGeometry(42,28),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false}));
+  bl.rotation.x=-Math.PI/2; bl.position.set(-0.5,0.02,0); scene.add(bl);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(240,240),new THREE.ShadowMaterial({opacity:0.26}));
+  ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+
+  // ── Lighting ──────────────────────────────────────────────────────────────
+  const amb = new THREE.HemisphereLight(0xffffff,0x8a8070,0.9); scene.add(amb);
+  const sun = new THREE.DirectionalLight(0xfff2dd,1.0);
+  sun.position.set(-14,30,18); sun.castShadow=true;
+  const ms=small?1024:2048; sun.shadow.mapSize.set(ms,ms); sun.shadow.bias=-0.0005;
+  const sc=sun.shadow.camera; sc.left=-32;sc.right=32;sc.top=32;sc.bottom=-32;sc.far=120;
+  scene.add(sun);
+  // Warm LED glow (canopy underlight, dusk mode)
+  const glow  = new THREE.PointLight(0xFFB347,0,24); glow.position.set(0,14.4,0); scene.add(glow);
+  const glow2 = new THREE.PointLight(0xFFB347,0,16); glow2.position.set(0,12,6); scene.add(glow2);
+  const glow3 = new THREE.PointLight(0xFFB347,0,10); glow3.position.set(2,12,0); scene.add(glow3);
+  // Customer-side fill (brings out glass shimmer + string lights in dusk)
+  const custFill = new THREE.PointLight(0xd0efff,0,32); custFill.position.set(0,13,-14); scene.add(custFill);
+  // String light glow (dusk)
+  const stringGlow = new THREE.PointLight(0xFFD68A,0,12); stringGlow.position.set(0,14.0,-3.9); scene.add(stringGlow);
+
+  // ── Day / Dusk mode ───────────────────────────────────────────────────────
+  const root=document.documentElement, theme=document.getElementById('themeColor');
+  const mDay=document.getElementById('mDay'), mDusk=document.getElementById('mDusk');
+  function setMode(m){
+    const dusk=m==='dusk';
+    root.setAttribute('data-mode',m);
+    amb.intensity=dusk?0.28:0.9; amb.color.set(dusk?0x8fa3c8:0xffffff);
+    sun.intensity=dusk?0.1:1.0;
+    glow.intensity=dusk?1.7:0; glow2.intensity=dusk?1.0:0; glow3.intensity=dusk?0.8:0;
+    custFill.intensity=dusk?0.8:0;
+    stringGlow.intensity=dusk?1.2:0;
+    mDay.setAttribute('aria-pressed',String(!dusk));
+    mDusk.setAttribute('aria-pressed',String(dusk));
+    theme.setAttribute('content',dusk?'#171b21':'#dfe4e7');
+  }
+  mDay.onclick=()=>setMode('day'); mDusk.onclick=()=>setMode('dusk');
+  setMode('day');
+
+  // ── Camera + controls ─────────────────────────────────────────────────────
+  const target = new THREE.Vector3(-0.5,9.5,0);
+  let th=0.7, ph=0.28, zoom=1, fitDist=50, auto=!reduce, vt=null, shutTarget=0;
+  const pointers=new Map(); let pinch=0;
+
+  function fit(){
+    const w=stage.clientWidth||window.innerWidth, h=stage.clientHeight||window.innerHeight;
+    R.setPixelRatio(Math.min(window.devicePixelRatio||1,small?1.75:2));
+    R.setSize(w,h,false);
+    cam.aspect=w/h; cam.updateProjectionMatrix();
+    fitDist=Math.max(44,42/cam.aspect);
+  }
+  fit();
+  window.addEventListener('resize',fit);
+  if(window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+
+  const clampZoom=()=>{zoom=Math.max(0.35,Math.min(2.0,zoom));};
+  function syncAuto(){document.getElementById('tAuto').setAttribute('aria-pressed',String(auto));}
+  function stopAuto(){if(auto){auto=false;syncAuto();}}
+  function goView(t,p){
+    stopAuto();
+    const d=(((t-th+Math.PI)%(2*Math.PI))+2*Math.PI)%(2*Math.PI)-Math.PI;
+    if(reduce){th+=d;ph=p;vt=null;}else{vt={t:th+d,p};}
+  }
+
+  stage.addEventListener('pointerdown',e=>{
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    try{stage.setPointerCapture(e.pointerId);}catch(_){}
+    stage.classList.add('drag'); vt=null; stopAuto();
+    if(pointers.size===2){const a=[...pointers.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}
+  });
+  stage.addEventListener('pointermove',e=>{
+    const p=pointers.get(e.pointerId); if(!p) return;
+    if(pointers.size===1){
+      th-=(e.clientX-p.x)*0.008;
+      ph=Math.max(0.02,Math.min(1.4,ph+(e.clientY-p.y)*0.006));
+      p.x=e.clientX; p.y=e.clientY;
+    } else if(pointers.size===2){
+      p.x=e.clientX; p.y=e.clientY;
+      const a=[...pointers.values()];
+      const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+      if(pinch>0&&d>0){zoom*=pinch/d;clampZoom();} pinch=d;
+    }
+  });
+  function pointerEnd(e){pointers.delete(e.pointerId);pinch=0;if(!pointers.size)stage.classList.remove('drag');}
+  stage.addEventListener('pointerup',pointerEnd);
+  stage.addEventListener('pointercancel',pointerEnd);
+  stage.addEventListener('wheel',e=>{e.preventDefault();zoom*=Math.exp(e.deltaY*0.0012);clampZoom();},{passive:false});
+  stage.addEventListener('keydown',e=>{
+    const k=e.key; let used=true;
+    if(k==='ArrowLeft') th-=0.12;
+    else if(k==='ArrowRight') th+=0.12;
+    else if(k==='ArrowUp') ph=Math.min(1.4,ph+0.08);
+    else if(k==='ArrowDown') ph=Math.max(0.02,ph-0.08);
+    else if(k==='+'||k==='='){zoom*=0.9;clampZoom();}
+    else if(k==='-'){zoom*=1.1;clampZoom();}
+    else used=false;
+    if(used){e.preventDefault();vt=null;stopAuto();}
+  });
+
+  // ── View buttons ──────────────────────────────────────────────────────────
+  document.getElementById('vSvc').onclick  = ()=>goView(0,     0.12);  // cook side
+  document.getElementById('vQ').onclick    = ()=>goView(0.7,   0.28);  // 3/4 view
+  document.getElementById('vBack').onclick = ()=>goView(Math.PI,0.12); // customer front
+  document.getElementById('vTop').onclick  = ()=>goView(0,     1.4);   // top-down
+  document.getElementById('zIn').onclick   = ()=>{zoom*=0.85;clampZoom();};
+  document.getElementById('zOut').onclick  = ()=>{zoom*=1.18;clampZoom();};
+  document.getElementById('tAuto').onclick = ()=>{auto=!auto;vt=null;syncAuto();};
+
+  const tS=document.getElementById('tShutter');
+  tS.onclick=()=>{
+    const open=shutTarget===0; shutTarget=open?-2.5:0;
+    tS.setAttribute('aria-pressed',String(open));
+    tS.textContent=open?'Lower awning':'Raise awning';
+  };
+  document.getElementById('tGlass').onclick=()=>{
+    const on=document.getElementById('tGlass').getAttribute('aria-pressed')!=='true';
+    document.getElementById('tGlass').setAttribute('aria-pressed',String(on));
+    built.glassObjs.forEach(o=>{o.visible=on;});
+  };
+  document.getElementById('tPeople').onclick=()=>{
+    const on=document.getElementById('tPeople').getAttribute('aria-pressed')!=='true';
+    document.getElementById('tPeople').setAttribute('aria-pressed',String(on));
+    built.people.visible=on;
+  };
+
+  // ── Render loop ───────────────────────────────────────────────────────────
+  const shutter=built.shutter;
+  const tmp=new THREE.Vector3();
+  let first=true;
+  function loop(){
+    requestAnimationFrame(loop);
+    if(vt){
+      th+=(vt.t-th)*0.12; ph+=(vt.p-ph)*0.12;
+      if(Math.abs(vt.t-th)<0.002&&Math.abs(vt.p-ph)<0.002){th=vt.t;ph=vt.p;vt=null;}
+    } else if(auto&&!pointers.size){th+=0.0030;}
+    shutter.rotation.x+=(shutTarget-shutter.rotation.x)*0.12;
+    const dist=Math.max(16,Math.min(130,fitDist*zoom));
+    cam.position.set(
+      target.x+dist*Math.cos(ph)*Math.sin(th),
+      target.y+dist*Math.sin(ph),
+      target.z+dist*Math.cos(ph)*Math.cos(th)
+    );
+    cam.lookAt(target);
+    R.render(scene,cam);
+    if(first){first=false;document.getElementById('msg').classList.add('done');}
+  }
+  loop();
 }
 
 load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
   .catch(()=>load('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'))
   .catch(()=>load('three.min.js'))
   .then(init)
-  .catch(()=>showMsg('3D engine failed to load. Check your connection and refresh.'));
+  .catch(()=>showMsg('3D engine failed to load — check connection and refresh.'));
 </script>
 </body>
 </html>
